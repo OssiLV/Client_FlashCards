@@ -7,20 +7,34 @@ import {
     Grid,
     Paper,
     Pagination,
-    IconButton,
-    Button,
     Tooltip,
+    Link,
 } from '@mui/material';
 import { Close, Edit } from '@mui/icons-material';
-import { AppBarComponent } from '../Components';
+import { AppBarComponent, ModalCreate } from '../Components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { setTagId } from '../State';
 
+function Copyright(props: any) {
+    return (
+        <Typography variant="body2" color="text.secondary" align="center" {...props}>
+            {'Copyright © '}
+            <Link color="inherit" href="https://mui.com/">
+                Your Website
+            </Link>{' '}
+            {new Date().getFullYear()}
+            {'.'}
+        </Typography>
+    );
+}
+
 export default function TagPage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    const _modal = useSelector((state: any) => state.modal);
     const user = useSelector((state: any) => state.user);
 
     interface ITag {
@@ -73,8 +87,10 @@ export default function TagPage() {
             .then(() => {})
             .catch((error) => console.error(`Cannot update: ${error}`));
     };
+
     return (
         <Box sx={{ display: 'flex' }}>
+            <ModalCreate tags={tags} page={page} />
             <AppBarComponent />
             <Box
                 component="main"
@@ -94,7 +110,7 @@ export default function TagPage() {
                         <Grid item xs={12} display="flex" justifyContent="center">
                             <Pagination
                                 count={paginatie}
-                                color="secondary"
+                                color="primary"
                                 onChange={(event: React.ChangeEvent<unknown>, page: number) =>
                                     setPage(page)
                                 }
@@ -197,9 +213,7 @@ export default function TagPage() {
 
                         {/* Recent Orders */}
                         <Grid item xs={12}>
-                            <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column' }}>
-                                {/* <Orders /> */}
-                            </Paper>
+                            <Copyright />
                         </Grid>
                     </Grid>
                 </Container>

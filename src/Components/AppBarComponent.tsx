@@ -6,16 +6,15 @@ import {
     ChevronLeft,
     KeyboardArrowDown,
     KeyboardArrowUp,
+    Add,
 } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import MouseOverPopover from './MouseOverPopover';
-
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
-import { googleLogout } from '@react-oauth/google';
-import { setLogout } from '../State';
+import { setModal } from '../State';
 import AccountListItemsComponent from './AccountListItemsComponent';
 import SideBarListItemsComponent from './SideBarListItemsComponent';
 
@@ -73,10 +72,19 @@ export default function AppBarComponent() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector((state: any) => state.user);
+    const _modal = useSelector((state: any) => state.modal);
 
     const [open, setOpen] = React.useState(true);
     const [accountOpen, setAccountOpen] = React.useState(true);
     const [title, setTitle] = React.useState<boolean>(true);
+
+    const handleCreateTag = () => {
+        dispatch(setModal({ modal: { status: true, name: 'Create Tag' } }));
+    };
+
+    const handleCreateCard = () => {
+        dispatch(setModal({ modal: { status: true, name: 'Create Card' } }));
+    };
 
     const toggleAccount = () => {
         setAccountOpen(!accountOpen);
@@ -88,7 +96,7 @@ export default function AppBarComponent() {
     };
 
     return (
-        <>
+        <React.Fragment>
             <AppBar position="absolute" open={open}>
                 <Toolbar
                     sx={{
@@ -106,7 +114,6 @@ export default function AppBarComponent() {
                         }}
                     >
                         {/* <MenuIcon />  */}
-
                         <Menu />
                     </IconButton>
                     <Typography
@@ -118,6 +125,28 @@ export default function AppBarComponent() {
                     >
                         {title ? '' : 'FlashCards'}
                     </Typography>
+
+                    {/* Modal */}
+                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
+                        <Button
+                            onClick={handleCreateTag}
+                            startIcon={<Add />}
+                            variant="outlined"
+                            sx={{ color: 'white', ':hover': { borderColor: 'white' } }}
+                        >
+                            Create Tag
+                        </Button>
+                        {/* <Typography>2</Typography> */}
+                        <Divider orientation="vertical" flexItem sx={{ color: 'white', mx: 1 }} />
+                        <Button
+                            onClick={handleCreateCard}
+                            startIcon={<Add />}
+                            variant="outlined"
+                            sx={{ color: 'white', ':hover': { borderColor: 'white' } }}
+                        >
+                            Create Card
+                        </Button>
+                    </Box>
                     <IconButton color="inherit">
                         <Badge badgeContent={4} color="secondary">
                             <Notifications />
@@ -180,6 +209,6 @@ export default function AppBarComponent() {
                     <Divider sx={{ my: 1 }} />
                 </List>
             </Drawer>
-        </>
+        </React.Fragment>
     );
 }

@@ -35,18 +35,48 @@ interface ITag {
     description: string;
 }
 
-export default function ModalCreate({ tags, page, func }: any) {
+export default function ModalCreate({ func }: any) {
     const dispatch = useDispatch();
-    const [tagId, setTagId] = React.useState<string>('');
-
     const _modal = useSelector((state: any) => state.modal);
     const user = useSelector((state: any) => state.user);
+
+    const [tagId, setTagId] = React.useState<string>('');
+    const [tags, setTags] = React.useState<Array<ITag>>([]);
+    const [page, setPage] = React.useState<number>(1);
+
+    const [_totalPage, _setTotalPage] = React.useState<number>(1);
+    const totalPage: Array<number> = [];
+    for (let i = 1; i <= _totalPage; i++) {
+        totalPage.push(i);
+    }
+
+    React.useEffect(() => {
+        axios
+            .get(`Tag/total-page-tag/${user.id}`)
+            .then((res) => {
+                _setTotalPage(res.data);
+            })
+            .catch();
+    }, []);
+
+    React.useEffect(() => {
+        axios
+            .get(`Tag/${user.id}/${page}`)
+            .then((res) => {
+                setTags(res.data);
+            })
+            .catch((error) => console.error(`Cannot get Tags data: ${error}`));
+    }, [page]);
 
     const handleClose = () =>
         dispatch(setModal({ modal: { create: false, update: false, delete: false, name: '' } }));
 
     const handleSelectTag = (event: SelectChangeEvent) => {
         setTagId(event.target.value);
+    };
+    const handleSelectPage = (event: SelectChangeEvent) => {
+        const data = event.target.value;
+        setPage(Number(data));
     };
 
     const handleCreate = (event: React.FormEvent<HTMLFormElement>) => {
@@ -77,7 +107,8 @@ export default function ModalCreate({ tags, page, func }: any) {
                 })
                 .then((res) => {
                     handleClose();
-                    window.location.reload();
+                    func();
+                    // window.location.reload();
                 })
                 .catch((error) => console.error(`Cannot Create Card: ${error}`));
         }
@@ -119,20 +150,40 @@ export default function ModalCreate({ tags, page, func }: any) {
                         sx={{ my: 1 }}
                     />
                     {_modal?.name === 'Create Card' && (
-                        <FormControl variant="standard" sx={{ width: 200 }}>
-                            {/* <Typography sx={{ flexGrow: 1 }}></Typography> */}
-                            <InputLabel sx={{ display: 'flex' }}>
-                                Select Tag in page <Link sx={{ ml: 1 }}>{page}</Link>
-                            </InputLabel>
+                        <>
+                            <FormControl variant="standard" sx={{ width: 120, m: 1 }}>
+                                {/* <Typography sx={{ flexGrow: 1 }}></Typography> */}
+                                <InputLabel sx={{ display: 'flex' }}>Select page</InputLabel>
 
-                            <Select sx={{ flexGrow: 2 }} value={tagId} onChange={handleSelectTag}>
-                                {tags.map((tag: ITag) => (
-                                    <MenuItem key={tag?.id} value={tag?.id}>
-                                        {tag?.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
+                                <Select
+                                    sx={{ flexGrow: 2 }}
+                                    value={page.toString()}
+                                    onChange={handleSelectPage}
+                                >
+                                    {totalPage.map((page: number) => (
+                                        <MenuItem key={page} value={page}>
+                                            {page}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl variant="standard" sx={{ width: 220, m: 1 }}>
+                                {/* <Typography sx={{ flexGrow: 1 }}></Typography> */}
+                                <InputLabel sx={{ display: 'flex' }}>Select Tag</InputLabel>
+
+                                <Select
+                                    sx={{ flexGrow: 2 }}
+                                    value={tagId}
+                                    onChange={handleSelectTag}
+                                >
+                                    {tags.map((tag: ITag) => (
+                                        <MenuItem key={tag?.id} value={tag?.id}>
+                                            {tag?.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                        </>
                     )}
 
                     {/* Button */}

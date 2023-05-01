@@ -1,26 +1,45 @@
 import * as React from 'react';
-import { Box, Toolbar, Typography, Container, Grid, Paper, Pagination } from '@mui/material';
-import { AppBarComponent } from '../Components';
+import {
+    Box,
+    Toolbar,
+    Typography,
+    Container,
+    Grid,
+    Paper,
+    Pagination,
+    Tooltip,
+} from '@mui/material';
+import { AppBarComponent, ModalCreate } from '../Components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { Close, Edit } from '@mui/icons-material';
+
+interface ICard {
+    id: number;
+    title: string;
+    translate: string;
+}
 
 export default function CardPage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const tagId = useSelector((state: any) => state.tagId);
 
-    interface ICard {
-        id: number;
-        title: string;
-        translate: string;
-    }
-
     const [page, setPage] = React.useState<number>(1);
     const [cards, setCars] = React.useState<Array<ICard>>([]);
-    const [paginatie, setPaginate] = React.useState<number>(1);
+    const [totalPage, setTotalPage] = React.useState<number>(1);
 
     React.useEffect(() => {
+        axios
+            .get(`Card/TagId/${tagId}/${page}`)
+            .then((res) => {
+                setCars(res.data);
+            })
+            .catch((error) => console.error(`Cannot get Tags data: ${error}`));
+    }, [page]);
+
+    const createCardRender = React.useCallback(() => {
         axios
             .get(`Card/TagId/${tagId}/${page}`)
             .then((res) => {
@@ -33,13 +52,18 @@ export default function CardPage() {
         axios
             .get(`Card/total-page-card/${tagId}`)
             .then((res) => {
-                setPaginate(res.data);
+                setTotalPage(res.data);
             })
             .catch();
     }, [cards]);
 
+    const handleEdit = (cardId: number) => {};
+
+    const handleDelete = (cardId: number) => {};
+
     return (
         <Box sx={{ display: 'flex' }}>
+            <ModalCreate func={createCardRender} />
             <AppBarComponent />
             <Box
                 component="main"
@@ -56,9 +80,16 @@ export default function CardPage() {
                 <Toolbar />
                 <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
                     <Grid container spacing={3}>
-                        <Grid item xs={12} display="flex" justifyContent="center">
+                        {/* <Typography variant="h6">{'Tag Name'}</Typography> */}
+                        <Grid
+                            item
+                            xs={12}
+                            display="flex"
+                            justifyContent="center"
+                            alignItems="center"
+                        >
                             <Pagination
-                                count={paginatie}
+                                count={totalPage}
                                 color="secondary"
                                 onChange={(event: React.ChangeEvent<unknown>, page: number) =>
                                     setPage(page)
@@ -68,17 +99,76 @@ export default function CardPage() {
 
                         {/* Recent Deposits */}
                         {cards.map((card) => (
-                            <Grid key={card.id} item xs={12} md={4} lg={3}>
+                            <Grid key={card.id} item xs={12} md={4} lg={3} sm={6}>
                                 <Paper
                                     sx={{
-                                        p: 2,
+                                        p: 3,
                                         display: 'flex',
                                         flexDirection: 'column',
-                                        height: 240,
+                                        height: '10rem',
                                         borderRadius: 4,
+                                        width: '16rem',
+                                        ':hover': {
+                                            borderBottom: '1.5px solid #1976d2',
+                                            cursor: 'pointer',
+                                        },
                                     }}
                                 >
-                                    {card.title}
+                                    <Box
+                                        sx={{ display: 'flex', flexDirection: 'row', flexGrow: 1 }}
+                                    >
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                flexGrow: 20,
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                                                {card?.title}
+                                            </Typography>
+                                            <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                                                {card?.translate}
+                                            </Typography>
+                                        </Box>
+                                        <Box
+                                            sx={{
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                flexGrow: 1,
+                                                justifyContent: 'center',
+                                            }}
+                                        >
+                                            <Tooltip title="Delete" placement="right">
+                                                <Close
+                                                    onClick={() => handleDelete(card.id)}
+                                                    color="error"
+                                                    sx={{
+                                                        mb: 3,
+                                                        flexGrow: 1,
+                                                        ':hover': {
+                                                            cursor: 'pointer',
+                                                        },
+                                                    }}
+                                                />
+                                            </Tooltip>
+
+                                            <Tooltip title="Edit" placement="right">
+                                                <Edit
+                                                    onClick={() => handleEdit(card.id)}
+                                                    color="primary"
+                                                    sx={{
+                                                        flexGrow: 5,
+                                                        mb: 1,
+                                                        ':hover': {
+                                                            cursor: 'pointer',
+                                                        },
+                                                    }}
+                                                />
+                                            </Tooltip>
+                                        </Box>
+                                    </Box>
                                 </Paper>
                             </Grid>
                         ))}

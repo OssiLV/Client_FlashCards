@@ -77,14 +77,13 @@ export default function ModalDelete({ userId, page, func }: any) {
                     <Box sx={{ ml: 18, mt: 1 }}>
                         <Button
                             onClick={handleClose}
-                            variant="contained"
-                            color="error"
+                            variant="outlined"
                             size="small"
                             sx={{ mr: 1 }}
                         >
                             Cancel
                         </Button>
-                        <Button variant="outlined" onClick={handleDelete}>
+                        <Button variant="contained" color="error" onClick={handleDelete}>
                             Delete
                         </Button>
                     </Box>

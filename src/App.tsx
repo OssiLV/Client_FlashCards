@@ -22,7 +22,7 @@ function App() {
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/home/tags" element={Boolean(token) ? <TagPage /> : <SignIn />} />
                     <Route
-                        path="/home/cards/:id"
+                        path="/home/cards/:tagname"
                         element={Boolean(token) ? <CardPage /> : <SignIn />}
                     />
                     <Route

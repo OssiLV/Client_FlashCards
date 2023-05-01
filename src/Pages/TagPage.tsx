@@ -45,7 +45,7 @@ export default function TagPage() {
 
     const [page, setPage] = React.useState<number>(1);
     const [tags, setTags] = React.useState<Array<ITag>>([]);
-    const [paginatie, setPaginate] = React.useState<number>(1);
+    const [totalPage, setTotalPage] = React.useState<number>(1);
     const tagId = useSelector((state: any) => state.tagId);
 
     React.useEffect(() => {
@@ -56,7 +56,6 @@ export default function TagPage() {
             })
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
     }, [page]);
-    console.log(page);
 
     const createTagRender = React.useCallback(() => {
         axios
@@ -71,13 +70,13 @@ export default function TagPage() {
         axios
             .get(`Tag/total-page-tag/${user.id}`)
             .then((res) => {
-                setPaginate(res.data);
+                setTotalPage(res.data);
             })
             .catch();
     }, [tags]);
 
-    const handleClickTag = (tagid: number) => {
-        navigate(`/home/cards/${tagid}`);
+    const handleClickTag = (tagid: number, tagName: string) => {
+        navigate(`/home/cards/${tagName}`);
         dispatch(setTagId({ tagId: tagid }));
     };
 
@@ -97,10 +96,11 @@ export default function TagPage() {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <ModalCreate tags={tags} page={page} func={createTagRender} />
+            <ModalCreate func={createTagRender} />
             <ModalUpdate userId={user.id} tagId={tagId} page={page} func={setTags} />
             <ModalDelete userId={user.id} page={page} func={setTags} />
             <AppBarComponent />
+
             <Box
                 component="main"
                 sx={{
@@ -118,7 +118,7 @@ export default function TagPage() {
                     <Grid container spacing={3}>
                         <Grid item xs={12} display="flex" justifyContent="center">
                             <Pagination
-                                count={paginatie}
+                                count={totalPage}
                                 color="primary"
                                 onChange={(event: React.ChangeEvent<unknown>, page: number) =>
                                     setPage(page)
@@ -128,15 +128,7 @@ export default function TagPage() {
 
                         {/* Recent Deposits */}
                         {tags.map((tag) => (
-                            <Grid
-                                key={tag.id}
-                                item
-                                // sx={{ display: 'flex' }}
-                                xs={12}
-                                md={4}
-                                lg={3}
-                                sm={6}
-                            >
+                            <Grid key={tag.id} item xs={12} md={4} lg={3} sm={6}>
                                 <Paper
                                     sx={{
                                         p: 3,
@@ -161,7 +153,7 @@ export default function TagPage() {
                                                 flexGrow: 20,
                                                 justifyContent: 'center',
                                             }}
-                                            onClick={() => handleClickTag(tag.id)}
+                                            onClick={() => handleClickTag(tag.id, tag.name)}
                                         >
                                             <Typography variant="h5" sx={{ flexGrow: 1 }}>
                                                 {tag.name}

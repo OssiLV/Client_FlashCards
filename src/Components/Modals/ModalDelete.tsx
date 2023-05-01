@@ -26,12 +26,12 @@ interface ITag {
     description: string;
 }
 
-export default function ModalDelete({ userId, page, func }: any) {
+export default function ModalDelete({ forceRender }: any) {
     const dispatch = useDispatch();
 
     const _modal = useSelector((state: any) => state.modal);
     const tagId = useSelector((state: any) => state.tagId);
-    // const [tags, setTags] = React.useState<Array<ITag>>([]);
+    const cardId = useSelector((state: any) => state.cardId);
 
     const handleClose = () =>
         dispatch(setModal({ modal: { create: false, update: false, delete: false, name: '' } }));
@@ -42,21 +42,21 @@ export default function ModalDelete({ userId, page, func }: any) {
                 .delete(`Tag/delete/${tagId}`)
                 .then(() => {
                     handleClose();
-                    deleteTagRender();
-                    // window.location.reload();
+                    forceRender();
                 })
-                .catch((error) => console.error(`Cannot delete tag: ${error}`));
+                .catch((error) => console.error(`Cannot delete Tag: ${error}`));
+        }
+
+        if (_modal.name === 'Delete Card') {
+            axios
+                .delete(`Card/delete/${cardId}`)
+                .then(() => {
+                    handleClose();
+                    forceRender();
+                })
+                .catch((error) => console.error(`Cannot delete Card: ${error}`));
         }
     };
-
-    const deleteTagRender = React.useCallback(() => {
-        axios
-            .get(`Tag/${userId}/${page}`)
-            .then((res) => {
-                func(res.data);
-            })
-            .catch((error) => console.error(`Cannot get Tags data: ${error}`));
-    }, [page]);
 
     return (
         <div>

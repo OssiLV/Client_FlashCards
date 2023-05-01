@@ -30,14 +30,14 @@ export default function SideBarListItemsComponent() {
             </Tooltip>
 
             {/* Card Page */}
-            <Tooltip title="Card" placement="right">
+            {/* <Tooltip title="Card" placement="right">
                 <ListItemButton onClick={() => navigate('/home/cards')}>
                     <ListItemIcon>
                         <Style />
                     </ListItemIcon>
                     <ListItemText primary="Card" />
                 </ListItemButton>
-            </Tooltip>
+            </Tooltip> */}
 
             {/* Practice Page */}
             <Tooltip title="Practice" placement="right">

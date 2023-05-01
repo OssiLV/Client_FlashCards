@@ -9,11 +9,12 @@ import {
     Pagination,
     Tooltip,
 } from '@mui/material';
-import { AppBarComponent, ModalCreate } from '../Components';
+import { AppBarComponent, ModalCreate, ModalDelete, ModalUpdate } from '../Components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { Close, Edit } from '@mui/icons-material';
+import { setCardId, setModal } from '../State';
 
 interface ICard {
     id: number;
@@ -32,16 +33,16 @@ export default function CardPage() {
 
     React.useEffect(() => {
         axios
-            .get(`Card/TagId/${tagId}/${page}`)
+            .get(`Card/${tagId}/${page}`)
             .then((res) => {
                 setCars(res.data);
             })
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
     }, [page]);
 
-    const createCardRender = React.useCallback(() => {
+    const forceCardRender = React.useCallback(() => {
         axios
-            .get(`Card/TagId/${tagId}/${page}`)
+            .get(`Card/${tagId}/${page}`)
             .then((res) => {
                 setCars(res.data);
             })
@@ -57,13 +58,25 @@ export default function CardPage() {
             .catch();
     }, [cards]);
 
-    const handleEdit = (cardId: number) => {};
+    const handleEdit = (cardId: number) => {
+        dispatch(setCardId({ cardId: cardId }));
+        dispatch(
+            setModal({ modal: { create: false, update: true, delete: false, name: 'Update Card' } })
+        );
+    };
 
-    const handleDelete = (cardId: number) => {};
+    const handleDelete = (cardId: number) => {
+        dispatch(setCardId({ cardId: cardId }));
+        dispatch(
+            setModal({ modal: { create: false, update: false, delete: true, name: 'Delete Card' } })
+        );
+    };
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <ModalCreate func={createCardRender} />
+            <ModalCreate forceRender={forceCardRender} />
+            <ModalUpdate forceRender={forceCardRender} />
+            <ModalDelete forceRender={forceCardRender} />
             <AppBarComponent />
             <Box
                 component="main"

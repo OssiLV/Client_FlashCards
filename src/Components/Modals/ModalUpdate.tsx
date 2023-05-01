@@ -25,11 +25,12 @@ interface ITag {
     description: string;
 }
 
-export default function ModalUpdate({ userId, _tagId, page, func }: any) {
+export default function ModalUpdate({ forceRender }: any) {
     const dispatch = useDispatch();
 
     const _modal = useSelector((state: any) => state.modal);
     const tagId = useSelector((state: any) => state.tagId);
+    const cardId = useSelector((state: any) => state.cardId);
 
     const handleClose = () =>
         dispatch(setModal({ modal: { create: false, update: false, delete: false, name: '' } }));
@@ -41,27 +42,32 @@ export default function ModalUpdate({ userId, _tagId, page, func }: any) {
 
         if (_modal.name === 'Update Tag') {
             axios
-                .put('Tag/edit', {
+                .put('Tag/update', {
                     id: tagId,
                     name: data.get('name'),
                     description: data.get('description'),
                 })
                 .then(() => {
                     handleClose();
-                    updateTagRender();
+                    forceRender();
                 })
-                .catch((error) => console.error(`Cannot update: ${error}`));
+                .catch((error) => console.error(`Cannot update Tag: ${error}`));
+        }
+
+        if (_modal.name === 'Update Card') {
+            axios
+                .put('Card/update', {
+                    id: cardId,
+                    title: data.get('title'),
+                    translate: data.get('translate'),
+                })
+                .then(() => {
+                    handleClose();
+                    forceRender();
+                })
+                .catch((error) => console.error(`Cannot update Card: ${error}`));
         }
     };
-
-    const updateTagRender = React.useCallback(() => {
-        axios
-            .get(`Tag/${userId}/${page}`)
-            .then((res) => {
-                func(res.data);
-            })
-            .catch((error) => console.error(`Cannot get Tags data: ${error}`));
-    }, [page]);
 
     return (
         <div>

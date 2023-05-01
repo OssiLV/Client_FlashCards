@@ -5,6 +5,7 @@ interface IState {
     user: object,
     token: any
     tagId: number,
+    cardId: number,
     modal: object,
 }
 
@@ -13,6 +14,7 @@ const initialState : IState = {
     mode: 'light',
     user : {},
     tagId: 0,
+    cardId: 0,
     modal: {
         create: false,
         update: false,
@@ -35,6 +37,9 @@ export const cardSlice = createSlice({
         setTagId: (state: IState, action) => {
             state.tagId = action.payload.tagId;
         },
+        setCardId: (state: IState, action) => {
+            state.cardId = action.payload.cardId;
+        },
         setModal: (state: IState, action) => {
             state.modal = action.payload.modal;
         },
@@ -42,10 +47,11 @@ export const cardSlice = createSlice({
             state.user = {};
             state.token = null;
             state.tagId = 0;
+            state.cardId = 0;
             state.modal = { create: false, update: false, delete: false, name: ''};
         },
     }
 })
 
-export const {setMode, setLogin, setLogout, setTagId, setModal} = cardSlice.actions;
+export const {setMode, setLogin, setLogout, setTagId, setCardId,setModal} = cardSlice.actions;
 export default cardSlice.reducer;

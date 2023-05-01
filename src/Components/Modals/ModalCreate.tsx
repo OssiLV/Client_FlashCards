@@ -35,7 +35,7 @@ interface ITag {
     description: string;
 }
 
-export default function ModalCreate({ func }: any) {
+export default function ModalCreate({ forceRender }: any) {
     const dispatch = useDispatch();
     const _modal = useSelector((state: any) => state.modal);
     const user = useSelector((state: any) => state.user);
@@ -92,7 +92,7 @@ export default function ModalCreate({ func }: any) {
                 })
                 .then((res) => {
                     handleClose();
-                    func();
+                    forceRender();
                     // window.location.reload();
                 })
                 .catch((error) => console.error(`Cannot Create Tag: ${error}`));
@@ -107,7 +107,7 @@ export default function ModalCreate({ func }: any) {
                 })
                 .then((res) => {
                     handleClose();
-                    func();
+                    forceRender();
                     // window.location.reload();
                 })
                 .catch((error) => console.error(`Cannot Create Card: ${error}`));

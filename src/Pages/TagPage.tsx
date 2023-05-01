@@ -46,7 +46,6 @@ export default function TagPage() {
     const [page, setPage] = React.useState<number>(1);
     const [tags, setTags] = React.useState<Array<ITag>>([]);
     const [totalPage, setTotalPage] = React.useState<number>(1);
-    const tagId = useSelector((state: any) => state.tagId);
 
     React.useEffect(() => {
         axios
@@ -57,7 +56,7 @@ export default function TagPage() {
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
     }, [page]);
 
-    const createTagRender = React.useCallback(() => {
+    const forceTagRender = React.useCallback(() => {
         axios
             .get(`Tag/${user.id}/${page}`)
             .then((res) => {
@@ -96,9 +95,9 @@ export default function TagPage() {
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <ModalCreate func={createTagRender} />
-            <ModalUpdate userId={user.id} tagId={tagId} page={page} func={setTags} />
-            <ModalDelete userId={user.id} page={page} func={setTags} />
+            <ModalCreate forceRender={forceTagRender} />
+            <ModalUpdate forceRender={forceTagRender} />
+            <ModalDelete forceRender={forceTagRender} />
             <AppBarComponent />
 
             <Box

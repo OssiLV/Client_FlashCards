@@ -14,7 +14,9 @@ const initialState : IState = {
     user : {},
     tagId: 0,
     modal: {
-        status: false,
+        create: false,
+        update: false,
+        delete: false,
         name: "",
     },
 };
@@ -40,7 +42,7 @@ export const cardSlice = createSlice({
             state.user = {};
             state.token = null;
             state.tagId = 0;
-            state.modal = { status: false, name: ''};
+            state.modal = { create: false, update: false, delete: false, name: ''};
         },
     }
 })

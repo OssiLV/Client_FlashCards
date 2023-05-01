@@ -11,9 +11,9 @@ import Box from '@mui/material/Box';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
-import { Modal, Divider } from '@mui/material';
+import { Divider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
@@ -37,11 +37,6 @@ const theme = createTheme();
 export default function SignIn() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    //Interact with Modal
-    // const [open, setOpen] = React.useState<Boolean>(false);
-    // const handleOpen = () => setOpen(true);
-    // const handleClose = () => setOpen(false);
 
     const [rememberMe, setRememberMe] = React.useState<Boolean>(false);
 

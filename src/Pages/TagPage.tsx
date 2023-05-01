@@ -11,11 +11,17 @@ import {
     Link,
 } from '@mui/material';
 import { Close, Edit } from '@mui/icons-material';
-import { AppBarComponent, ModalCreate } from '../Components';
+import { AppBarComponent, ModalCreate, ModalDelete, ModalUpdate } from '../Components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { setTagId } from '../State';
+import { setModal, setTagId } from '../State';
+
+interface ITag {
+    id: number;
+    name: string;
+    description: string;
+}
 
 function Copyright(props: any) {
     return (
@@ -37,17 +43,22 @@ export default function TagPage() {
     const _modal = useSelector((state: any) => state.modal);
     const user = useSelector((state: any) => state.user);
 
-    interface ITag {
-        id: number;
-        name: string;
-        description: string;
-    }
-
     const [page, setPage] = React.useState<number>(1);
     const [tags, setTags] = React.useState<Array<ITag>>([]);
     const [paginatie, setPaginate] = React.useState<number>(1);
+    const tagId = useSelector((state: any) => state.tagId);
 
     React.useEffect(() => {
+        axios
+            .get(`Tag/${user.id}/${page}`)
+            .then((res) => {
+                setTags(res.data);
+            })
+            .catch((error) => console.error(`Cannot get Tags data: ${error}`));
+    }, [page]);
+    console.log(page);
+
+    const createTagRender = React.useCallback(() => {
         axios
             .get(`Tag/${user.id}/${page}`)
             .then((res) => {
@@ -70,27 +81,25 @@ export default function TagPage() {
         dispatch(setTagId({ tagId: tagid }));
     };
 
-    const handleDelete = (tagId: number) => {
-        axios
-            .delete(`Tag/delete/${tagId}`)
-            .then(() => window.location.reload())
-            .catch((error) => console.error(`Cannot delete tag: ${error}`));
+    const handleEdit = (tagId: number) => {
+        dispatch(setTagId({ tagId: tagId }));
+        dispatch(
+            setModal({ modal: { create: false, update: true, delete: false, name: 'Update Tag' } })
+        );
     };
 
-    const handleEdit = (tagId: number) => {
-        axios
-            .put('Tag/edit', {
-                id: tagId,
-                name: 'edited',
-                description: '',
-            })
-            .then(() => {})
-            .catch((error) => console.error(`Cannot update: ${error}`));
+    const handleDelete = (tagId: number) => {
+        dispatch(setTagId({ tagId: tagId }));
+        dispatch(
+            setModal({ modal: { create: false, update: false, delete: true, name: 'Delete Tag' } })
+        );
     };
 
     return (
         <Box sx={{ display: 'flex' }}>
-            <ModalCreate tags={tags} page={page} />
+            <ModalCreate tags={tags} page={page} func={createTagRender} />
+            <ModalUpdate userId={user.id} tagId={tagId} page={page} func={setTags} />
+            <ModalDelete userId={user.id} page={page} func={setTags} />
             <AppBarComponent />
             <Box
                 component="main"
@@ -211,7 +220,7 @@ export default function TagPage() {
                             </Grid>
                         ))}
 
-                        {/* Recent Orders */}
+                        {/* Copyright t */}
                         <Grid item xs={12}>
                             <Copyright />
                         </Grid>

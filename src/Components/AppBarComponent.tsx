@@ -79,11 +79,15 @@ export default function AppBarComponent() {
     const [title, setTitle] = React.useState<boolean>(true);
 
     const handleCreateTag = () => {
-        dispatch(setModal({ modal: { status: true, name: 'Create Tag' } }));
+        dispatch(
+            setModal({ modal: { create: true, update: false, delete: false, name: 'Create Tag' } })
+        );
     };
 
     const handleCreateCard = () => {
-        dispatch(setModal({ modal: { status: true, name: 'Create Card' } }));
+        dispatch(
+            setModal({ modal: { create: true, update: false, delete: false, name: 'Create Card' } })
+        );
     };
 
     const toggleAccount = () => {

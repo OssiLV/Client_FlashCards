@@ -35,15 +35,15 @@ interface ITag {
     description: string;
 }
 
-export default function ModalCreate({ tags, page }: any) {
+export default function ModalCreate({ tags, page, func }: any) {
     const dispatch = useDispatch();
+    const [tagId, setTagId] = React.useState<string>('');
 
     const _modal = useSelector((state: any) => state.modal);
     const user = useSelector((state: any) => state.user);
 
-    const handleClose = () => dispatch(setModal({ modal: { status: false, name: '' } }));
-
-    const [tagId, setTagId] = React.useState<string>('');
+    const handleClose = () =>
+        dispatch(setModal({ modal: { create: false, update: false, delete: false, name: '' } }));
 
     const handleSelectTag = (event: SelectChangeEvent) => {
         setTagId(event.target.value);
@@ -62,7 +62,8 @@ export default function ModalCreate({ tags, page }: any) {
                 })
                 .then((res) => {
                     handleClose();
-                    window.location.reload();
+                    func();
+                    // window.location.reload();
                 })
                 .catch((error) => console.error(`Cannot Create Tag: ${error}`));
         }
@@ -86,7 +87,7 @@ export default function ModalCreate({ tags, page }: any) {
         <div>
             <Modal
                 keepMounted
-                open={_modal?.status}
+                open={_modal?.create}
                 onClose={handleClose}
                 aria-labelledby="keep-mounted-modal-title"
                 aria-describedby="keep-mounted-modal-description"

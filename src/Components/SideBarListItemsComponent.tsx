@@ -41,7 +41,7 @@ export default function SideBarListItemsComponent() {
 
             {/* Practice Page */}
             <Tooltip title="Practice" placement="right">
-                <ListItemButton>
+                <ListItemButton onClick={() => navigate('/practice')}>
                     <ListItemIcon>
                         <AutoAwesome />
                     </ListItemIcon>

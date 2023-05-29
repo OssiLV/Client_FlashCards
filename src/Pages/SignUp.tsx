@@ -15,9 +15,13 @@ import {
 import { LockClockOutlined } from '@mui/icons-material';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-hot-toast';
+
 export default function SignUp() {
     const navigate = useNavigate();
-    const [err, setErr] = React.useState(true);
+    const [errPassword, setErrPassword] = React.useState(true);
+    const [errUserName, setErrUserName] = React.useState(false);
+    const [userName, setUserName] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
 
@@ -27,7 +31,7 @@ export default function SignUp() {
         const password = String(data.get('password'));
         const confirmPassword = data.get('confirmPassword');
 
-        if (password === confirmPassword) {
+        if (!errPassword && !errUserName) {
             axios
                 .post('User/signup', {
                     userName: data.get('userName'),
@@ -36,27 +40,68 @@ export default function SignUp() {
                     emailConfirm: false,
                 })
                 .then(() => navigate('/home/tags'))
-                .catch((error) => console.error(`Cannot SignUp ${error}`));
+                .catch((error) => {
+                    console.error(`Cannot SignUp ${error}`);
+
+                    setErrUserName(true);
+                });
+        }
+
+        if (errPassword || errUserName) {
+            toast.error('Cannot SignUp');
         }
     };
 
     React.useEffect(() => {
         if (password === confirmPassword) {
-            setErr(false);
+            setErrPassword(false);
         } else {
-            setErr(true);
+            setErrPassword(true);
         }
     }, [confirmPassword]);
 
-    // const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     setPassword(event.target.value);
-    // };
-    // const handleConfirmPassword = (event: React.ChangeEvent<HTMLInputElement>) => {
-    //     setConfirmPassword(event.target.value);
-    //     if (password === confirmPassword) {
-    //         console.log(1);
-    //     }
-    // };
+    React.useEffect(() => {
+        const maxLength: number = 12;
+        const specialCharacters = [
+            '!',
+            '@',
+            '#',
+            '$',
+            '?',
+            '+',
+            '-',
+            '*',
+            '/',
+            '"',
+            "'",
+            '&',
+            '%',
+            '^',
+            '`',
+            '~',
+            '=',
+            '[',
+            ']',
+            '{',
+            '}',
+        ];
+        let isSpecialCharacters = false;
+        for (const specialCharacter of specialCharacters) {
+            if (userName.includes(specialCharacter)) {
+                isSpecialCharacters = true;
+            }
+        }
+
+        // if (userName.trim() === '') {
+        //     setErrUserName(true);
+        // }
+        if (userName.length > maxLength) {
+            setErrUserName(true);
+        }
+        if (userName.trim() !== '' && userName.length <= maxLength && !isSpecialCharacters) {
+            setErrUserName(false);
+        }
+    }, [userName]);
 
     return (
         <Container component="main" maxWidth="xs">
@@ -79,6 +124,15 @@ export default function SignUp() {
                     <Grid container spacing={2}>
                         <Grid item xs={12}>
                             <TextField
+                                onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                                    setUserName(event.target.value)
+                                }
+                                error={errUserName}
+                                helperText={
+                                    errUserName
+                                        ? 'UserName must be < 12 and does not contain specialCharacters and space'
+                                        : ''
+                                }
                                 required
                                 fullWidth
                                 id="userName"
@@ -103,8 +157,8 @@ export default function SignUp() {
                                 }
                                 required
                                 fullWidth
-                                error={err}
-                                helperText={err ? 'Password does not match!' : ''}
+                                error={errPassword}
+                                helperText={errPassword ? 'Password does not match!' : ''}
                                 value={password}
                                 name="password"
                                 label="Password"
@@ -119,8 +173,8 @@ export default function SignUp() {
                                 }
                                 required
                                 fullWidth
-                                error={err}
-                                helperText={err ? 'Password does not match!' : ''}
+                                error={errPassword}
+                                helperText={errPassword ? 'Password does not match!' : ''}
                                 value={confirmPassword}
                                 name="confirmPassword"
                                 label="Confirm Password"
@@ -128,12 +182,6 @@ export default function SignUp() {
                                 id="confirmPassword"
                             />
                         </Grid>
-                        {/* <Grid item xs={12}>
-                            <FormControlLabel
-                                control={<Checkbox value="allowExtraEmails" color="primary" />}
-                                label="I want to receive inspiration, marketing promotions and updates via email."
-                            />
-                        </Grid> */}
                     </Grid>
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Sign Up

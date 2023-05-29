@@ -17,6 +17,7 @@ import {
 import storage from 'redux-persist/lib/storage';
 import { PersistGate } from 'redux-persist/integration/react';
 import { GoogleOAuthProvider } from '@react-oauth/google';
+import ToasterContext from './Components/Context/ToasterContext';
 import App from './App';
 
 const persistConfig = { key: 'root', storage, version: 1 };
@@ -35,8 +36,9 @@ const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(
     <Provider store={store}>
         <PersistGate loading={null} persistor={persistStore(store)}>
-            <GoogleOAuthProvider clientId="1082277985374-jdlutno6vreod8pi44dpdebmdsjoj836.apps.googleusercontent.com">
+            <GoogleOAuthProvider clientId="567968380326-lp6nvrpaqd2a96ho585n5td23bl7aboh.apps.googleusercontent.com">
                 <CssBaseline />
+                <ToasterContext />
                 <App />
             </GoogleOAuthProvider>
         </PersistGate>

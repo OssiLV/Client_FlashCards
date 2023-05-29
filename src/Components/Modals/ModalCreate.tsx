@@ -9,13 +9,13 @@ import {
     Divider,
     FormControl,
     InputLabel,
-    Link,
     MenuItem,
     Select,
     SelectChangeEvent,
     TextField,
 } from '@mui/material';
-import axios from 'axios';
+import { toast } from 'react-hot-toast';
+import axios, { AxiosResponse } from 'axios';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -40,6 +40,12 @@ export default function ModalCreate({ forceRender }: any) {
     const _modal = useSelector((state: any) => state.modal);
     const user = useSelector((state: any) => state.user);
 
+    const maxlength: number = 12;
+    const [value_1, setValue_1] = React.useState('');
+    const [value_2, setValue_2] = React.useState('');
+    const [errValidate_1, setErrValidate_1] = React.useState(false);
+    const [errValidate_2, setErrValidate_2] = React.useState(false);
+
     const [tagId, setTagId] = React.useState<string>('');
     const [tags, setTags] = React.useState<Array<ITag>>([]);
     const [page, setPage] = React.useState<number>(1);
@@ -50,10 +56,19 @@ export default function ModalCreate({ forceRender }: any) {
         totalPage.push(i);
     }
 
+    const getPage = React.useCallback(() => {
+        axios
+            .get(`Tag/total-page-tag/${user.id}`)
+            .then((res: AxiosResponse) => {
+                _setTotalPage(res.data);
+            })
+            .catch();
+    }, [tags]);
+
     React.useEffect(() => {
         axios
             .get(`Tag/total-page-tag/${user.id}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 _setTotalPage(res.data);
             })
             .catch();
@@ -62,14 +77,25 @@ export default function ModalCreate({ forceRender }: any) {
     React.useEffect(() => {
         axios
             .get(`Tag/${user.id}/${page}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 setTags(res.data);
             })
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
     }, [page]);
 
     const handleClose = () =>
-        dispatch(setModal({ modal: { create: false, update: false, delete: false, name: '' } }));
+        dispatch(
+            setModal({
+                modal: {
+                    create: false,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: '',
+                },
+            })
+        );
 
     const handleSelectTag = (event: SelectChangeEvent) => {
         setTagId(event.target.value);
@@ -79,21 +105,37 @@ export default function ModalCreate({ forceRender }: any) {
         setPage(Number(data));
     };
 
+    //Validate
+    React.useEffect(() => {
+        if (value_1.length <= maxlength) {
+            setErrValidate_1(false);
+        } else {
+            setErrValidate_1(true);
+        }
+
+        if (value_2.length <= maxlength) {
+            setErrValidate_2(false);
+        } else {
+            setErrValidate_2(true);
+        }
+    }, [value_1, value_2]);
+
     const handleCreate = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
+        // const data = new FormData(event.currentTarget);
 
-        if (_modal.name === 'Create Tag') {
+        if (_modal.name === 'Create Tag' && !errValidate_1 && !errValidate_2) {
             axios
                 .post(`Tag/addtag`, {
-                    name: data.get('name'),
-                    description: data.get('description'),
+                    name: value_1,
+                    description: value_2,
                     userId: user.id,
                 })
-                .then((res) => {
+                .then((res: AxiosResponse) => {
+                    toast.success('Created a Tag success');
                     handleClose();
                     forceRender();
-                    // window.location.reload();
+                    getPage();
                 })
                 .catch((error) => console.error(`Cannot Create Tag: ${error}`));
         }
@@ -101,14 +143,14 @@ export default function ModalCreate({ forceRender }: any) {
         if (_modal.name === 'Create Card') {
             axios
                 .post(`Card/addcard`, {
-                    title: data.get('title'),
-                    translate: data.get('translate'),
+                    title: value_1,
+                    translate: value_2,
                     tagId: tagId,
                 })
                 .then((res) => {
+                    toast.success('Created a Card success');
                     handleClose();
                     forceRender();
-                    // window.location.reload();
                 })
                 .catch((error) => console.error(`Cannot Create Card: ${error}`));
         }
@@ -132,19 +174,27 @@ export default function ModalCreate({ forceRender }: any) {
 
                     {/* Input */}
                     <TextField
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                            setValue_1(event.target.value)
+                        }
                         required
                         fullWidth
-                        name={_modal?.name === 'Create Tag' ? 'name' : 'title'}
                         label={_modal?.name === 'Create Tag' ? 'name' : 'title'}
+                        error={errValidate_1}
+                        helperText={errValidate_1 ? 'Value must be < 12 ' : ''}
                         size="small"
                         type="text"
                         sx={{ my: 1 }}
                     />
                     <TextField
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                            setValue_2(event.target.value)
+                        }
                         required
                         fullWidth
-                        name={_modal?.name === 'Create Tag' ? 'description' : 'translate'}
                         label={_modal?.name === 'Create Tag' ? 'description' : 'translate'}
+                        error={errValidate_2}
+                        helperText={errValidate_2 ? 'Value must be < 12 ' : ''}
                         size="small"
                         type="text"
                         sx={{ my: 1 }}

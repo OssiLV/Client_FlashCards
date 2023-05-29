@@ -80,13 +80,31 @@ export default function AppBarComponent() {
 
     const handleCreateTag = () => {
         dispatch(
-            setModal({ modal: { create: true, update: false, delete: false, name: 'Create Tag' } })
+            setModal({
+                modal: {
+                    create: true,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: 'Create Tag',
+                },
+            })
         );
     };
 
     const handleCreateCard = () => {
         dispatch(
-            setModal({ modal: { create: true, update: false, delete: false, name: 'Create Card' } })
+            setModal({
+                modal: {
+                    create: true,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: 'Create Card',
+                },
+            })
         );
     };
 
@@ -163,7 +181,7 @@ export default function AppBarComponent() {
                         color="secondary"
                         sx={{ px: 2, mx: 2, minWidth: 5 }}
                     >
-                        {user.userName}
+                        {user.fullName ? user.fullName : user.userName}
                     </Button>
                     <Box
                         onMouseLeave={toggleAccount}

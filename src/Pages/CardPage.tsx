@@ -12,7 +12,7 @@ import {
 import { AppBarComponent, ModalCreate, ModalDelete, ModalUpdate } from '../Components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Close, Edit } from '@mui/icons-material';
 import { setCardId, setModal } from '../State';
 
@@ -34,7 +34,7 @@ export default function CardPage() {
     React.useEffect(() => {
         axios
             .get(`Card/${tagId}/${page}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 setCars(res.data);
             })
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
@@ -43,7 +43,7 @@ export default function CardPage() {
     const forceCardRender = React.useCallback(() => {
         axios
             .get(`Card/${tagId}/${page}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 setCars(res.data);
             })
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
@@ -52,7 +52,7 @@ export default function CardPage() {
     React.useEffect(() => {
         axios
             .get(`Card/total-page-card/${tagId}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 setTotalPage(res.data);
             })
             .catch();
@@ -61,14 +61,32 @@ export default function CardPage() {
     const handleEdit = (cardId: number) => {
         dispatch(setCardId({ cardId: cardId }));
         dispatch(
-            setModal({ modal: { create: false, update: true, delete: false, name: 'Update Card' } })
+            setModal({
+                modal: {
+                    create: false,
+                    update: true,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: 'Update Card',
+                },
+            })
         );
     };
 
     const handleDelete = (cardId: number) => {
         dispatch(setCardId({ cardId: cardId }));
         dispatch(
-            setModal({ modal: { create: false, update: false, delete: true, name: 'Delete Card' } })
+            setModal({
+                modal: {
+                    create: false,
+                    update: false,
+                    delete: true,
+                    sendOTP: false,
+                    practice: false,
+                    name: 'Delete Card',
+                },
+            })
         );
     };
 

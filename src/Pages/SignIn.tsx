@@ -1,23 +1,30 @@
 import * as React from 'react';
-import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
-import CssBaseline from '@mui/material/CssBaseline';
-import TextField from '@mui/material/TextField';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import Checkbox from '@mui/material/Checkbox';
-import Link from '@mui/material/Link';
-import Grid from '@mui/material/Grid';
-import Box from '@mui/material/Box';
-import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
-import Typography from '@mui/material/Typography';
-import Container from '@mui/material/Container';
-import { Divider } from '@mui/material';
+import { LockOutlined } from '@mui/icons-material';
+import {
+    Divider,
+    Avatar,
+    Button,
+    CssBaseline,
+    TextField,
+    FormControlLabel,
+    Checkbox,
+    Link,
+    Grid,
+    Box,
+    Typography,
+    Container,
+} from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { useGoogleLogin } from '@react-oauth/google';
-import axios from 'axios';
+import {
+    useGoogleLogin,
+    CredentialResponse,
+    GoogleLogin,
+    GoogleOAuthProvider,
+} from '@react-oauth/google';
 import { setLogin } from '../State';
+import axios, { AxiosResponse } from 'axios';
 
 function Copyright(props: any) {
     return (
@@ -60,8 +67,7 @@ export default function SignIn() {
                 password: data.get('password'),
                 rememberMe: data.get('remember') === null ? false : true,
             })
-            .then((res: any) => {
-                const data = res.data;
+            .then((res: AxiosResponse) => {
                 // console.log(data.user);
 
                 dispatch(setLogin({ token: res.data.token, user: res.data.user }));
@@ -71,66 +77,21 @@ export default function SignIn() {
     };
 
     //Login with Google
-    const login = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            try {
-                const accountGoogle = await axios.get(
-                    'https://www.googleapis.com/oauth2/v3/userinfo',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${tokenResponse.access_token}`,
-                        },
-                    }
-                );
-                const newName = accountGoogle.data.name.replace(/\s+/g, '');
-                const newPassword = `SerectPassword ${accountGoogle.data.email} + ${accountGoogle.data.name}`;
-                const checkUser = await axios.post('User/checkuser', {
-                    email: accountGoogle.data.email,
-                });
 
-                if (checkUser.data) {
-                    axios
-                        .post('User/signin', {
-                            email: accountGoogle.data.email,
-                            password: newPassword,
-                            rememberMe: true,
-                        })
-                        .then((res) => {
-                            dispatch(setLogin({ token: res.data.token, user: res.data.user }));
-                            navigate('/home/tags');
-                        })
-                        .catch((error) => console.error(`Cannot SignIn ${error}`));
-                } else {
-                    axios
-                        .post('User/signup', {
-                            userName: newName,
-                            email: accountGoogle.data.email,
-                            password: newPassword,
-                            emailConfirm: true,
-                        })
-                        .then(() => {
-                            axios
-                                .post('User/signin', {
-                                    email: accountGoogle.data.email,
-                                    password: newPassword,
-                                    rememberMe: true,
-                                })
-                                .then((res) => {
-                                    dispatch(
-                                        setLogin({ token: res.data.token, user: res.data.user })
-                                    );
-                                    navigate('/home/tags');
-                                })
-                                .catch((error) => console.error(`Cannot SignIn ${error}`));
-                        })
-                        .catch((error) => console.error(`Cannot SignIn ${error}`));
-                }
-            } catch (error) {
-                console.error(error);
-            }
-        },
-        onError: () => console.log('Error'),
-    });
+    const handleGoogleLogin = (credentialResponse: CredentialResponse) => {
+        // console.log(credentialResponse.credential);
+
+        axios
+            .post(`User/auth/google`, {
+                credential: credentialResponse.credential,
+            })
+            .then((res: AxiosResponse) => {
+                dispatch(setLogin({ token: res.data.result.token, user: res.data.result.user }));
+                navigate('/home/tags');
+                // console.log({ res });
+            })
+            .catch((error) => console.error(`Cannot signin by Google: ${error}`));
+    };
 
     return (
         <Container component="main" maxWidth="xs">
@@ -144,7 +105,7 @@ export default function SignIn() {
                 }}
             >
                 <Avatar sx={{ m: 1, bgcolor: 'secondary.main' }}>
-                    <LockOutlinedIcon />
+                    <LockOutlined />
                 </Avatar>
 
                 <Typography component="h1" variant="h5">
@@ -152,18 +113,16 @@ export default function SignIn() {
                 </Typography>
                 <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 1 }}>
-                        <Avatar
-                            onClick={() => login()}
-                            sx={{
-                                mx: 1,
-                                ':hover': {
-                                    bgcolor: '#9c27b0',
-                                    cursor: 'pointer',
-                                },
-                            }}
-                            variant="rounded"
-                            src="https://eaassets-a.akamaihd.net/resource_signin_ea_com/551.0.20230421.384.b9ef97f/p/images/google.svg"
-                        ></Avatar>
+                        <GoogleOAuthProvider clientId="567968380326-lp6nvrpaqd2a96ho585n5td23bl7aboh.apps.googleusercontent.com">
+                            <GoogleLogin
+                                onSuccess={(credentialResponse: CredentialResponse) => {
+                                    handleGoogleLogin(credentialResponse);
+                                }}
+                                onError={() => {
+                                    console.error('Login Failed');
+                                }}
+                            />
+                        </GoogleOAuthProvider>
                     </Box>
 
                     <Divider sx={{ my: 1 }} />
@@ -202,7 +161,7 @@ export default function SignIn() {
 
                     <Grid container>
                         <Grid item xs>
-                            <Link href="#" variant="body2">
+                            <Link href="/forgotpassword" variant="body2">
                                 Forgot password?
                             </Link>
                         </Grid>

@@ -14,8 +14,9 @@ import { Close, Edit } from '@mui/icons-material';
 import { AppBarComponent, ModalCreate, ModalDelete, ModalUpdate } from '../Components';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { setModal, setTagId } from '../State';
+import '../css/loadingstyle.css';
 
 interface ITag {
     id: number;
@@ -50,7 +51,7 @@ export default function TagPage() {
     React.useEffect(() => {
         axios
             .get(`Tag/${user.id}/${page}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 setTags(res.data);
             })
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
@@ -59,7 +60,7 @@ export default function TagPage() {
     const forceTagRender = React.useCallback(() => {
         axios
             .get(`Tag/${user.id}/${page}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 setTags(res.data);
             })
             .catch((error) => console.error(`Cannot get Tags data: ${error}`));
@@ -68,7 +69,7 @@ export default function TagPage() {
     React.useEffect(() => {
         axios
             .get(`Tag/total-page-tag/${user.id}`)
-            .then((res) => {
+            .then((res: AxiosResponse) => {
                 setTotalPage(res.data);
             })
             .catch();
@@ -82,14 +83,32 @@ export default function TagPage() {
     const handleEdit = (tagId: number) => {
         dispatch(setTagId({ tagId: tagId }));
         dispatch(
-            setModal({ modal: { create: false, update: true, delete: false, name: 'Update Tag' } })
+            setModal({
+                modal: {
+                    create: false,
+                    update: true,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: 'Update Tag',
+                },
+            })
         );
     };
 
     const handleDelete = (tagId: number) => {
         dispatch(setTagId({ tagId: tagId }));
         dispatch(
-            setModal({ modal: { create: false, update: false, delete: true, name: 'Delete Tag' } })
+            setModal({
+                modal: {
+                    create: false,
+                    update: false,
+                    delete: true,
+                    sendOTP: false,
+                    practice: false,
+                    name: 'Delete Tag',
+                },
+            })
         );
     };
 
@@ -126,90 +145,106 @@ export default function TagPage() {
                         </Grid>
 
                         {/* Recent Deposits */}
-                        {tags.map((tag) => (
-                            <Grid key={tag.id} item xs={12} md={4} lg={3} sm={6}>
-                                <Paper
+
+                        {tags.toString() !== '' ? (
+                            <>
+                                {tags.map((tag) => (
+                                    <Grid key={tag.id} item xs={12} md={4} lg={3} sm={6}>
+                                        <Paper
+                                            sx={{
+                                                p: 3,
+                                                display: 'flex',
+                                                flexDirection: 'column',
+                                                height: '10rem',
+                                                borderRadius: 4,
+                                                width: '16rem',
+                                                ':hover': {
+                                                    borderBottom: '1.5px solid #1976d2',
+                                                    cursor: 'pointer',
+                                                },
+                                            }}
+                                        >
+                                            <Box
+                                                sx={{
+                                                    display: 'flex',
+                                                    flexDirection: 'row',
+                                                    flexGrow: 1,
+                                                }}
+                                            >
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        flexGrow: 20,
+                                                        justifyContent: 'center',
+                                                    }}
+                                                    onClick={() => handleClickTag(tag.id, tag.name)}
+                                                >
+                                                    <Typography variant="h5" sx={{ flexGrow: 1 }}>
+                                                        {tag.name}
+                                                    </Typography>
+                                                    <Typography variant="h6" sx={{ flexGrow: 1 }}>
+                                                        {tag.description}
+                                                    </Typography>
+                                                </Box>
+                                                <Box
+                                                    sx={{
+                                                        display: 'flex',
+                                                        flexDirection: 'column',
+                                                        flexGrow: 1,
+                                                        justifyContent: 'center',
+                                                    }}
+                                                >
+                                                    <Tooltip title="Delete" placement="right">
+                                                        <Close
+                                                            onClick={() => handleDelete(tag.id)}
+                                                            color="error"
+                                                            sx={{
+                                                                mb: 3,
+                                                                flexGrow: 1,
+                                                                ':hover': {
+                                                                    cursor: 'pointer',
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Tooltip>
+
+                                                    <Tooltip title="Edit" placement="right">
+                                                        <Edit
+                                                            onClick={() => handleEdit(tag.id)}
+                                                            color="primary"
+                                                            sx={{
+                                                                flexGrow: 5,
+                                                                mb: 1,
+                                                                ':hover': {
+                                                                    cursor: 'pointer',
+                                                                },
+                                                            }}
+                                                        />
+                                                    </Tooltip>
+                                                </Box>
+                                            </Box>
+                                        </Paper>
+                                    </Grid>
+                                ))}
+                            </>
+                        ) : (
+                            <Grid item xs={12} md={4} lg={3} sm={6}>
+                                <Box
                                     sx={{
-                                        p: 3,
                                         display: 'flex',
-                                        flexDirection: 'column',
-                                        height: '10rem',
-                                        borderRadius: 4,
-                                        width: '16rem',
-                                        ':hover': {
-                                            borderBottom: '1.5px solid #1976d2',
-                                            cursor: 'pointer',
-                                        },
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
                                     }}
                                 >
-                                    <Box
-                                        sx={{ display: 'flex', flexDirection: 'row', flexGrow: 1 }}
-                                    >
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                flexGrow: 20,
-                                                justifyContent: 'center',
-                                            }}
-                                            onClick={() => handleClickTag(tag.id, tag.name)}
-                                        >
-                                            <Typography variant="h5" sx={{ flexGrow: 1 }}>
-                                                {tag.name}
-                                            </Typography>
-                                            <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                                                {tag.description}
-                                            </Typography>
-                                        </Box>
-                                        <Box
-                                            sx={{
-                                                display: 'flex',
-                                                flexDirection: 'column',
-                                                flexGrow: 1,
-                                                justifyContent: 'center',
-                                            }}
-                                        >
-                                            <Tooltip title="Delete" placement="right">
-                                                <Close
-                                                    onClick={() => handleDelete(tag.id)}
-                                                    color="error"
-                                                    sx={{
-                                                        mb: 3,
-                                                        flexGrow: 1,
-                                                        ':hover': {
-                                                            cursor: 'pointer',
-                                                        },
-                                                    }}
-                                                />
-                                            </Tooltip>
-
-                                            <Tooltip title="Edit" placement="right">
-                                                <Edit
-                                                    onClick={() => handleEdit(tag.id)}
-                                                    color="primary"
-                                                    sx={{
-                                                        flexGrow: 5,
-                                                        mb: 1,
-                                                        ':hover': {
-                                                            cursor: 'pointer',
-                                                        },
-                                                    }}
-                                                />
-                                            </Tooltip>
-                                        </Box>
+                                    <Box className="balls">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
                                     </Box>
-                                    {/* <Button
-                                        variant="contained"
-                                        color="primary"
-                                        size="small"
-                                        fullWidth
-                                        
-                                    >
-                                        Open
-                                    </Button> */}
-                                </Paper>
+                                </Box>
                             </Grid>
-                        ))}
+                        )}
 
                         {/* Copyright t */}
                         <Grid item xs={12}>

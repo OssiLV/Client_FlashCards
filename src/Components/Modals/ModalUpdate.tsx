@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setModal } from '../../State';
 import axios from 'axios';
 import { Divider, TextField } from '@mui/material';
+import { toast } from 'react-hot-toast';
 
 const style = {
     position: 'absolute' as 'absolute',
@@ -32,22 +33,53 @@ export default function ModalUpdate({ forceRender }: any) {
     const tagId = useSelector((state: any) => state.tagId);
     const cardId = useSelector((state: any) => state.cardId);
 
+    const maxlength: number = 12;
+    const [value_1, setValue_1] = React.useState('');
+    const [value_2, setValue_2] = React.useState('');
+    const [errValidate_1, setErrValidate_1] = React.useState(false);
+    const [errValidate_2, setErrValidate_2] = React.useState(false);
+
+    //Validate
+    React.useEffect(() => {
+        if (value_1.length <= maxlength) {
+            setErrValidate_1(false);
+        } else {
+            setErrValidate_1(true);
+        }
+
+        if (value_2.length <= maxlength) {
+            setErrValidate_2(false);
+        } else {
+            setErrValidate_2(true);
+        }
+    }, [value_1, value_2]);
+
     const handleClose = () =>
-        dispatch(setModal({ modal: { create: false, update: false, delete: false, name: '' } }));
+        dispatch(
+            setModal({
+                modal: {
+                    create: false,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: '',
+                },
+            })
+        );
 
     const handleUpdate = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
-        const data = new FormData(event.currentTarget);
 
         if (_modal.name === 'Update Tag') {
             axios
                 .put('Tag/update', {
                     id: tagId,
-                    name: data.get('name'),
-                    description: data.get('description'),
+                    name: value_1,
+                    description: value_2,
                 })
                 .then(() => {
+                    toast.success('Updated Tag');
                     handleClose();
                     forceRender();
                 })
@@ -58,10 +90,11 @@ export default function ModalUpdate({ forceRender }: any) {
             axios
                 .put('Card/update', {
                     id: cardId,
-                    title: data.get('title'),
-                    translate: data.get('translate'),
+                    title: value_1,
+                    translate: value_2,
                 })
                 .then(() => {
+                    toast.success('Updated Card');
                     handleClose();
                     forceRender();
                 })
@@ -71,7 +104,6 @@ export default function ModalUpdate({ forceRender }: any) {
 
     return (
         <div>
-            {/* <Button onClick={handleOpen}>Open modal</Button> */}
             <Modal
                 keepMounted
                 open={_modal?.update}
@@ -87,9 +119,13 @@ export default function ModalUpdate({ forceRender }: any) {
                     <Divider sx={{ my: 1 }} />
 
                     <TextField
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                            setValue_1(event.target.value)
+                        }
+                        error={errValidate_1}
+                        helperText={errValidate_1 ? 'Value must be < 12 ' : ''}
                         required
                         fullWidth
-                        name={_modal?.name === 'Update Tag' ? 'name' : 'title'}
                         label={_modal?.name === 'Update Tag' ? 'name' : 'title'}
                         size="small"
                         type="text"
@@ -97,9 +133,13 @@ export default function ModalUpdate({ forceRender }: any) {
                     />
 
                     <TextField
+                        onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
+                            setValue_2(event.target.value)
+                        }
+                        error={errValidate_2}
+                        helperText={errValidate_2 ? 'Value must be < 12 ' : ''}
                         required
                         fullWidth
-                        name={_modal?.name === 'Update Tag' ? 'description' : 'translate'}
                         label={_modal?.name === 'Update Tag' ? 'description' : 'translate'}
                         size="small"
                         type="text"

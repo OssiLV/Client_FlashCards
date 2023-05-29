@@ -2,7 +2,19 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CssBaseline } from '@mui/material';
 import { useSelector } from 'react-redux';
-import { SidePage, SignIn, SignUp, TagPage, AccountPage, CardPage } from './Pages';
+import {
+    SidePage,
+    SignIn,
+    SignUp,
+    TagPage,
+    AccountPage,
+    CardPage,
+    OTPVerifyEmailPage,
+    ForgotPasswordPage,
+    ResetPasswordPage,
+    OTPResetPasswordPage,
+    PracticePage,
+} from './Pages';
 import axios from 'axios';
 
 function App() {
@@ -20,14 +32,25 @@ function App() {
                     <Route path="/" element={<SidePage />} />
                     <Route path="/signin" element={<SignIn />} />
                     <Route path="/signup" element={<SignUp />} />
+                    <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
+                    <Route path="/resetpassword" element={<ResetPasswordPage />} />
                     <Route path="/home/tags" element={Boolean(token) ? <TagPage /> : <SignIn />} />
                     <Route
                         path="/home/cards/:tagname"
                         element={Boolean(token) ? <CardPage /> : <SignIn />}
                     />
                     <Route
-                        path="/accout-page"
+                        path="/account"
                         element={Boolean(token) ? <AccountPage /> : <SignIn />}
+                    />
+                    <Route
+                        path="/OTPverifyemail"
+                        element={Boolean(token) ? <OTPVerifyEmailPage /> : <SignIn />}
+                    />
+                    <Route path="/OTPresetpassword" element={<OTPResetPasswordPage />} />
+                    <Route
+                        path="/practice"
+                        element={Boolean(token) ? <PracticePage /> : <SignIn />}
                     />
                 </Routes>
             </Router>

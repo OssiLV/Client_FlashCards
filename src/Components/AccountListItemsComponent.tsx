@@ -10,6 +10,10 @@ export default function AccountListItemsComponent() {
     const dispatch = useDispatch();
     const user = useSelector((state: any) => state.user);
 
+    const navigateAcountPage = () => {
+        navigate('/account');
+    };
+
     const handleLogout = () => {
         googleLogout();
         dispatch(setLogout());
@@ -21,13 +25,15 @@ export default function AccountListItemsComponent() {
             {/* <ListSubheader component="div" inset>
                 Account
             </ListSubheader> */}
-            <ListItemButton>
+            <ListItemButton onClick={navigateAcountPage}>
                 <ListItemIcon>
                     <AccountBox />
                 </ListItemIcon>
                 <ListItemText primary="Account" />
             </ListItemButton>
+
             <Divider />
+
             <ListItemButton sx={{ color: 'red' }} onClick={handleLogout}>
                 <ListItemIcon>
                     <Logout color="error" />

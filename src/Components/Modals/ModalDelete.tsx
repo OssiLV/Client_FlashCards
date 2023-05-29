@@ -3,11 +3,11 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { setModal } from '../../State';
 import { Divider } from '@mui/material';
-
+import { toast } from 'react-hot-toast';
 const style = {
     position: 'absolute' as 'absolute',
     top: '50%',
@@ -28,19 +28,41 @@ interface ITag {
 
 export default function ModalDelete({ forceRender }: any) {
     const dispatch = useDispatch();
-
+    const _user = useSelector((state: any) => state.user);
     const _modal = useSelector((state: any) => state.modal);
     const tagId = useSelector((state: any) => state.tagId);
     const cardId = useSelector((state: any) => state.cardId);
+    const [_totalPage, _setTotalPage] = React.useState<number>(1);
 
     const handleClose = () =>
-        dispatch(setModal({ modal: { create: false, update: false, delete: false, name: '' } }));
+        dispatch(
+            setModal({
+                modal: {
+                    create: false,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: '',
+                },
+            })
+        );
+
+    const getPage = React.useCallback(() => {
+        axios
+            .get(`Tag/total-page-tag/${_user.id}`)
+            .then((res: AxiosResponse) => {
+                _setTotalPage(res.data);
+            })
+            .catch();
+    }, []);
 
     const handleDelete = () => {
         if (_modal.name === 'Delete Tag') {
             axios
                 .delete(`Tag/delete/${tagId}`)
                 .then(() => {
+                    toast.error('Your Tag is deleted');
                     handleClose();
                     forceRender();
                 })
@@ -51,6 +73,7 @@ export default function ModalDelete({ forceRender }: any) {
             axios
                 .delete(`Card/delete/${cardId}`)
                 .then(() => {
+                    toast.error('Your Card is deleted');
                     handleClose();
                     forceRender();
                 })

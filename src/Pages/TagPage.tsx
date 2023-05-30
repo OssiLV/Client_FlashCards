@@ -145,7 +145,6 @@ export default function TagPage() {
                         </Grid>
 
                         {/* Recent Deposits */}
-
                         {tags.toString() !== '' ? (
                             <>
                                 {tags.map((tag) => (

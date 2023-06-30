@@ -23,30 +23,17 @@ import {
     GoogleLogin,
     GoogleOAuthProvider,
 } from '@react-oauth/google';
-
-import { setAccessToken, setLogin, setModal } from '../State';
+import { setModal } from '../State/ModalReducer';
+import { setAccessToken, setLogin } from '../State/UserReducer';
 import axios, { AxiosResponse } from 'axios';
-import { ModalSendOTPEmail } from '../Components';
-
-function Copyright(props: any) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import { ModalSendOTPEmail, Copyright } from '../Components';
 
 const theme = createTheme();
 
 export default function ForgotPasswordPage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const _user = useSelector((state: any) => state.user);
+    const _user = useSelector((state: any) => state.rootUserReducer.user);
     const [rememberMe, setRememberMe] = React.useState<Boolean>(false);
 
     //Login with App
@@ -116,7 +103,7 @@ export default function ForgotPasswordPage() {
 
                     <Grid container>
                         <Grid item>
-                            <Link href="/signin" variant="body2">
+                            <Link href="/" variant="body2">
                                 {'Back to Sign In'}
                             </Link>
                         </Grid>

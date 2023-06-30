@@ -7,31 +7,25 @@ import {
     Divider,
     Box,
 } from '@mui/material';
-import { Assessment, Logout, AccountBox, Navigation, Shield } from '@mui/icons-material';
+import {
+    Assessment,
+    Logout,
+    AccountBox,
+    Navigation,
+    Shield,
+    ArrowBackIos,
+} from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { googleLogout } from '@react-oauth/google';
-import { setLogout } from '../State';
-
-function Choosed({ topPosition }: any) {
-    return (
-        <Navigation
-            sx={{
-                ml: '1rem',
-                rotate: '-90deg',
-                position: 'absolute',
-                top: topPosition,
-                left: 514,
-                borderBottom: '1px solid white',
-                width: '2.8rem',
-            }}
-        />
-    );
-}
+import { setLogout } from '../State/UserReducer';
+import axios from 'axios';
 
 export default function OptionsMyAccountComponent({ _aboutMe, _security }: any) {
-    const [chekcIndex, setCheckIndex] = React.useState(0);
+    const _user: any = useSelector((state: any) => state.rootUserReducer.user);
 
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+    const [chekcIndex, setCheckIndex] = React.useState(0);
     const handleLoadOptionsTabAcount = (index: number) => {
         switch (index) {
             case 0:
@@ -47,12 +41,24 @@ export default function OptionsMyAccountComponent({ _aboutMe, _security }: any) 
         }
     };
 
-    return (
-        <React.Fragment>
-            {/* <ListSubheader component="div" inset>
-                Account
-            </ListSubheader> */}
+    const navigateHome = () => {
+        navigate('/home/tags');
+    };
 
+    const handleLogOut = () => {
+        if (!_user.emailConfirmed) {
+            // axios.delete(`User/delete/${_user.email}`).then(() => {
+            // });
+            dispatch(setLogout());
+            navigate('/');
+        } else {
+            dispatch(setLogout());
+            navigate('/');
+        }
+    };
+
+    return (
+        <Box sx={{ width: '100%', display: 'flex', flexDirection: 'column' }}>
             <ListItemButton onClick={() => handleLoadOptionsTabAcount(0)}>
                 <ListItemIcon>
                     <AccountBox color={chekcIndex === 0 ? 'primary' : 'inherit'} />
@@ -62,7 +68,6 @@ export default function OptionsMyAccountComponent({ _aboutMe, _security }: any) 
                     sx={chekcIndex === 0 ? { color: '#1976d2' } : { color: 'inherit' }}
                 />
             </ListItemButton>
-            {/* {chekcIndex === 1 ? <Choosed topPosition={168} /> : ''} */}
 
             <Divider />
 
@@ -75,7 +80,27 @@ export default function OptionsMyAccountComponent({ _aboutMe, _security }: any) 
                     sx={chekcIndex === 1 ? { color: '#1976d2' } : { color: 'inherit' }}
                 />
             </ListItemButton>
-            {/* {chekcIndex === 2 ? <Choosed topPosition={218} /> : ''} */}
-        </React.Fragment>
+
+            <Divider />
+
+            <ListItemButton onClick={navigateHome}>
+                <ListItemIcon>
+                    <ArrowBackIos sx={{ color: '#1976d2' }} />
+                </ListItemIcon>
+                <ListItemText
+                    primary="Back"
+                    sx={{ textDecoration: 'underline', color: '#1976d2' }}
+                />
+            </ListItemButton>
+
+            <Divider />
+
+            <ListItemButton onClick={handleLogOut} sx={{ mt: '22rem' }}>
+                <ListItemIcon>
+                    <Logout color="error" />
+                </ListItemIcon>
+                <ListItemText primary="Log Out" sx={{ color: '#d32f2f' }} />
+            </ListItemButton>
+        </Box>
     );
 }

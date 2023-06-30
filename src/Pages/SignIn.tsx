@@ -15,7 +15,7 @@ import {
     Container,
 } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
     useGoogleLogin,
@@ -23,72 +23,47 @@ import {
     GoogleLogin,
     GoogleOAuthProvider,
 } from '@react-oauth/google';
-import { setLogin } from '../State';
+import { UserReducer } from '../State/UserReducer';
+import { setLogin } from '../State/UserReducer';
 import axios, { AxiosResponse } from 'axios';
-
-function Copyright(props: any) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
-
-const theme = createTheme();
+import { setToken } from '../State/AuthReducer';
+import { Copyright } from '../Components';
 
 export default function SignIn() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    const [rememberMe, setRememberMe] = React.useState<Boolean>(false);
-
-    const handleRememberMe = () => {
-        setRememberMe(!rememberMe);
-    };
+    const [error, setError] = React.useState('');
 
     //Login with App
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        // console.log({
-        //     email: data.get('email'),
-        //     password: data.get('password'),
-        //     rememberMe: data.get('remember') === null ? false : true,
-        // });
 
         axios
             .post('User/signin', {
                 email: data.get('email'),
                 password: data.get('password'),
-                rememberMe: data.get('remember') === null ? false : true,
             })
             .then((res: AxiosResponse) => {
-                // console.log(data.user);
-
-                dispatch(setLogin({ token: res.data.token, user: res.data.user }));
+                dispatch(setLogin({ user: res.data.user }));
+                dispatch(setToken({ token: res.data.token }));
                 navigate('/home/tags');
             })
-            .catch((error: any) => console.error(error));
+            .catch((error: any) => {
+                setError(error.response.data);
+            });
     };
 
     //Login with Google
-
     const handleGoogleLogin = (credentialResponse: CredentialResponse) => {
-        // console.log(credentialResponse.credential);
-
         axios
             .post(`User/auth/google`, {
                 credential: credentialResponse.credential,
             })
             .then((res: AxiosResponse) => {
-                dispatch(setLogin({ token: res.data.result.token, user: res.data.result.user }));
+                dispatch(setLogin({ user: res.data.result.user }));
+                dispatch(setToken({ token: res.data.token }));
                 navigate('/home/tags');
-                // console.log({ res });
             })
             .catch((error) => console.error(`Cannot signin by Google: ${error}`));
     };
@@ -144,17 +119,12 @@ export default function SignIn() {
                         type="password"
                         id="password"
                     />
-                    <FormControlLabel
-                        name="remember"
-                        control={
-                            <Checkbox
-                                onChange={() => handleRememberMe()}
-                                value={rememberMe}
-                                color="primary"
-                            />
-                        }
-                        label="Remember me"
-                    />
+
+                    {error && (
+                        <Box sx={{ color: '#d32f2f' }}>
+                            <Typography>{error}</Typography>
+                        </Box>
+                    )}
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Sign In
                     </Button>

@@ -1,12 +1,11 @@
 import { Box, Modal, Typography } from '@mui/material';
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setModal } from '../../State';
+import { setModal } from '../../State/ModalReducer';
 
 export default function ModalSendOTPEmail() {
     const dispatch = useDispatch();
-    const _modal = useSelector((state: any) => state.modal);
-    const user = useSelector((state: any) => state.user);
+    const _modal = useSelector((state: any) => state.rootModalReducer.modal);
 
     const handleClose = () =>
         dispatch(

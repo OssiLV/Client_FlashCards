@@ -1,10 +1,13 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Modal, Button, Typography, Box, Divider, TextField, Chip } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import TurnedInIcon from '@mui/icons-material/TurnedIn';
 import axios from 'axios';
 import { AxiosResponse } from 'axios';
+import { setModal } from '../../State/ModalReducer';
+import { useNavigate } from 'react-router-dom';
+import { setTagId } from '../../State/CurrentValueReducer';
 
 interface ITag {
     id: number;
@@ -12,68 +15,87 @@ interface ITag {
     description: string;
 }
 
-function ModalPractice() {
-    const _user = useSelector((state: any) => state.user);
+function ModalSearch() {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
 
-    const [tags, setTags] = React.useState([]);
-    const [filteredResults, setFilteredResults] = React.useState([]);
+    const _user = useSelector((state: any) => state.rootUserReducer.user);
+    const _modal = useSelector((state: any) => state.rootModalReducer.modal);
+
+    const [tags, setTags] = React.useState<Array<ITag>>([]);
+    const [filteredResults, setFilteredResults] = React.useState<Array<ITag>>([]);
     const [searchTag, setSearchTag] = React.useState('');
-    const [open, setOpen] = React.useState(false);
 
+    const handleCloseModal = () => {
+        dispatch(
+            setModal({
+                modal: {
+                    create: false,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: '',
+                },
+            })
+        );
+    };
     React.useEffect(() => {
         axios
-            .get(`Tag/alltags/${_user.id}`)
+            .get(`Tag/alltags/${_user?.id}`)
             .then((res: AxiosResponse) => {
-                console.log(tags);
-
                 setTags(res.data);
             })
             .catch((error) => console.error(error));
-    }, [_user.id]);
+    }, [_user?.id]);
 
     // Handle Click Tag
-    const handleClickTag = (tagId: number) => {};
+    const handleClickTag = (tagId: number, tagName: string) => {
+        dispatch(setTagId({ tagId: tagId }));
+        navigate(`/home/cards/${tagName}`);
+        handleCloseModal();
+    };
 
-    //Handle Search Tags
-    React.useEffect(() => {
-        if (searchTag !== '') {
-            const filteredTag = tags.filter((tag: ITag) => {
-                return Object.values(tag).join('').toLowerCase().includes(searchTag.toLowerCase());
+    // SetFriendAfterFilter(data.GetFriends.filter(x=>`${x.firstName.toLowerCase()} ${x.lastName.toLowerCase()}`.includes(keyword.toLowerCase())))
+
+    const handleSearch = (value: string) => {
+        if (value !== '') {
+            const filteredTag = tags.filter((x) => {
+                return `${x.name.toLowerCase()} ${x.description.toLowerCase()}`.includes(
+                    value.toLowerCase()
+                );
             });
 
             setFilteredResults(filteredTag);
         } else {
             setFilteredResults(tags);
         }
-    }, [searchTag]);
+    };
+
+    // console.log(testSearch());
+
+    //Handle Search Tags
+    // React.useLayoutEffect(() => {
+    //     if (searchTag !== '') {
+    //         const filteredTag = tags.filter((x) => {
+    //             return `${x.name.toLowerCase()} ${x.description.toLowerCase()}`.includes(
+    //                 searchTag.toLowerCase()
+    //             );
+    //         });
+
+    //         setFilteredResults(filteredTag);
+    //     } else {
+    //         setFilteredResults(tags);
+    //     }
+    // }, [searchTag]);
 
     return (
         <div>
-            <Box
-                sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    width: '100%',
-                    height: '100vh',
-                }}
-            >
-                <Button
-                    onClick={() => {
-                        setOpen(true);
-                        // setSearchTag('');
-                    }}
-                    variant="contained"
-                >
-                    Please Chooses Tag you want to Practice
-                </Button>
-            </Box>
-
             <Modal
                 keepMounted
-                open={open}
+                open={_modal.practice}
                 onClose={() => {
-                    setOpen(false);
+                    handleCloseModal();
                     setSearchTag('');
                 }}
                 aria-labelledby="keep-mounted-modal-title"
@@ -98,7 +120,7 @@ function ModalPractice() {
                             <SearchIcon color="primary" fontSize="large" />
                             <TextField
                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                    // handleSearch(event.target.value);
+                                    handleSearch(event.target.value);
                                     setSearchTag(event.target.value);
                                 }}
                                 sx={{ border: 'none', height: '56px' }}
@@ -132,7 +154,9 @@ function ModalPractice() {
                                                   <div key={tag.id}>
                                                       <Box
                                                           component="li"
-                                                          onClick={() => handleClickTag(tag.id)}
+                                                          onClick={() =>
+                                                              handleClickTag(tag.id, tag.name)
+                                                          }
                                                           sx={{
                                                               display: 'flex',
                                                               alignItems: 'center',
@@ -185,7 +209,9 @@ function ModalPractice() {
                                                       <Box
                                                           component="li"
                                                           //   key={tag.id}
-                                                          onClick={() => handleClickTag(tag.id)}
+                                                          onClick={() =>
+                                                              handleClickTag(tag.id, tag.name)
+                                                          }
                                                           sx={{
                                                               display: 'flex',
                                                               alignItems: 'center',
@@ -263,4 +289,4 @@ function ModalPractice() {
     );
 }
 
-export default ModalPractice;
+export default ModalSearch;

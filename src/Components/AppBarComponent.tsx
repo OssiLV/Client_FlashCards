@@ -1,24 +1,17 @@
 import React from 'react';
-import { Box, Toolbar, IconButton, Typography, Badge, Button, Divider, List } from '@mui/material';
-import {
-    Menu,
-    Notifications,
-    ChevronLeft,
-    KeyboardArrowDown,
-    KeyboardArrowUp,
-    Add,
-} from '@mui/icons-material';
+import { Box, Toolbar, IconButton, Typography, Divider, List } from '@mui/material';
+import { Menu, ChevronLeft } from '@mui/icons-material';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import MouseOverPopover from './MouseOverPopover';
 import MuiAppBar, { AppBarProps as MuiAppBarProps } from '@mui/material/AppBar';
 import { styled } from '@mui/material/styles';
 import MuiDrawer from '@mui/material/Drawer';
-import { setModal } from '../State';
-import AccountListItemsComponent from './AccountListItemsComponent';
+
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material';
 import SideBarListItemsComponent from './SideBarListItemsComponent';
 
-const drawerWidth: number = 240;
+const drawerWidth: number = 380;
 
 interface AppBarProps extends MuiAppBarProps {
     open?: boolean;
@@ -71,42 +64,12 @@ const Drawer = styled(MuiDrawer, { shouldForwardProp: (prop) => prop !== 'open' 
 export default function AppBarComponent() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const user = useSelector((state: any) => state.user);
-    const _modal = useSelector((state: any) => state.modal);
+    const user = useSelector((state: any) => state.rootUserReducer.user);
+    const _modal = useSelector((state: any) => state.rootModalReducer.modal);
 
-    const [open, setOpen] = React.useState(true);
+    const [open, setOpen] = React.useState(false);
     const [accountOpen, setAccountOpen] = React.useState(true);
     const [title, setTitle] = React.useState<boolean>(true);
-
-    const handleCreateTag = () => {
-        dispatch(
-            setModal({
-                modal: {
-                    create: true,
-                    update: false,
-                    delete: false,
-                    sendOTP: false,
-                    practice: false,
-                    name: 'Create Tag',
-                },
-            })
-        );
-    };
-
-    const handleCreateCard = () => {
-        dispatch(
-            setModal({
-                modal: {
-                    create: true,
-                    update: false,
-                    delete: false,
-                    sendOTP: false,
-                    practice: false,
-                    name: 'Create Card',
-                },
-            })
-        );
-    };
 
     const toggleAccount = () => {
         setAccountOpen(!accountOpen);
@@ -147,61 +110,7 @@ export default function AppBarComponent() {
                     >
                         {title ? '' : 'FlashCards'}
                     </Typography>
-
-                    {/* Modal */}
-                    <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1 }}>
-                        <Button
-                            onClick={handleCreateTag}
-                            startIcon={<Add />}
-                            variant="outlined"
-                            sx={{ color: 'white', ':hover': { borderColor: 'white' } }}
-                        >
-                            Create Tag
-                        </Button>
-                        {/* <Typography>2</Typography> */}
-                        <Divider orientation="vertical" flexItem sx={{ color: 'white', mx: 1 }} />
-                        <Button
-                            onClick={handleCreateCard}
-                            startIcon={<Add />}
-                            variant="outlined"
-                            sx={{ color: 'white', ':hover': { borderColor: 'white' } }}
-                        >
-                            Create Card
-                        </Button>
-                    </Box>
-                    <IconButton color="inherit">
-                        <Badge badgeContent={4} color="secondary">
-                            <Notifications />
-                        </Badge>
-                    </IconButton>
-                    <Button
-                        onClick={toggleAccount}
-                        endIcon={accountOpen ? <KeyboardArrowDown /> : <KeyboardArrowUp />}
-                        variant="contained"
-                        color="secondary"
-                        sx={{ px: 2, mx: 2, minWidth: 5 }}
-                    >
-                        {user.fullName ? user.fullName : user.userName}
-                    </Button>
-                    <Box
-                        onMouseLeave={toggleAccount}
-                        sx={{
-                            position: 'absolute',
-                            px: 1,
-                            backgroundColor: 'white',
-                            color: 'black',
-                            borderRadius: 1,
-                            right: 20,
-                            top: 70,
-                            boxShadow:
-                                '0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19)',
-                            ...(accountOpen && { display: 'none' }),
-                        }}
-                    >
-                        <List component="nav">{<AccountListItemsComponent />}</List>
-                    </Box>
                 </Toolbar>
-                <MouseOverPopover />
             </AppBar>
             <Drawer variant="permanent" open={open}>
                 <Toolbar

@@ -3,12 +3,12 @@ import { MuiOtpInput } from 'mui-one-time-password-input';
 import axios, { AxiosResponse } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { setAccessToken, setIsEmailCofirm } from '../../State';
+import { setAccessToken, setIsEmailCofirm } from '../../State/UserReducer';
 import { Box, Typography } from '@mui/material';
 
 export default function OTPResetPasswordPage() {
-    const accessToken = useSelector((state: any) => state.accessToken);
-    const _user = useSelector((state: any) => state.user);
+    const _accessToken = useSelector((state: any) => state.rootUserReducer.accessToken);
+    const _user = useSelector((state: any) => state.rootUserReducer.user);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const [value, setValue] = React.useState<string>('');
@@ -16,15 +16,11 @@ export default function OTPResetPasswordPage() {
         setValue(newValue);
     };
 
-    console.log(_user.email);
-
-    console.log(accessToken);
-
     const handleComplete = (otp: string) => {
         axios
             .post(`User/verifyemail`, {
                 email: _user.email,
-                accessToken: accessToken,
+                accessToken: _accessToken,
                 otp: otp,
             })
             .then((res: AxiosResponse) => {

@@ -24,29 +24,18 @@ import {
     GoogleOAuthProvider,
 } from '@react-oauth/google';
 
-import { setLogin, setLogout } from '../State';
+import { setLogin, setLogout } from '../State/UserReducer';
 import axios, { AxiosResponse } from 'axios';
-
-function Copyright(props: any) {
-    return (
-        <Typography variant="body2" color="text.secondary" align="center" {...props}>
-            {'Copyright © '}
-            <Link color="inherit" href="https://mui.com/">
-                Your Website
-            </Link>{' '}
-            {new Date().getFullYear()}
-            {'.'}
-        </Typography>
-    );
-}
+import { Copyright } from '../Components';
+//
 
 const theme = createTheme();
 
 export default function ResetPasswordPage() {
     const navigate = useNavigate();
     const dispatch = useDispatch();
-    const accessToken = useSelector((state: any) => state.accessToken);
-    const _user = useSelector((state: any) => state.user);
+    const _accessToken = useSelector((state: any) => state.rootUserReducer.accessToken);
+    const _user = useSelector((state: any) => state.rootUserReducer.user);
     const [err, setErr] = React.useState(true);
     const [password, setPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
@@ -62,11 +51,11 @@ export default function ResetPasswordPage() {
                 .post('User/resetpassword', {
                     email: _user.email,
                     password: data.get('password2'),
-                    accessToken: accessToken,
+                    accessToken: _accessToken,
                 })
                 .then(() => {
                     dispatch(setLogout());
-                    navigate('/signin');
+                    navigate('/');
                 })
                 .catch((error) => console.error(`Cannot SignUp ${error}`));
         }

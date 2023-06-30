@@ -1,6 +1,5 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CssBaseline } from '@mui/material';
 import { useSelector } from 'react-redux';
 import {
     SidePage,
@@ -14,43 +13,78 @@ import {
     ResetPasswordPage,
     OTPResetPasswordPage,
     PracticePage,
+    ShufflePage,
+    Congratulation,
+    TypingPage,
 } from './Pages';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
+import { ModalSearch } from './Components';
 
 function App() {
-    const mode = useSelector((state: any) => state.mode);
-    const token = useSelector((state: any) => state.token);
+    const _token = useSelector((state: any) => state.rootAuthReducer.token);
 
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    const [cards, setCars] = React.useState([]);
+    const _tagId = useSelector((state: any) => state.rootCurrentValueReducer.tagId);
+    const _currentCardPage = useSelector(
+        (state: any) => state.rootCurrentValueReducer.currentCardPage
+    );
+
+    React.useEffect(() => {
+        axios
+            .get(`Card/${_tagId}/${_currentCardPage}`)
+            .then((res: AxiosResponse) => {
+                setCars(res.data);
+            })
+            .catch((error) => console.error(`Cannot get Tags data: ${error}`));
+    }, [_tagId, _currentCardPage]);
+
+    axios.defaults.headers.common['Authorization'] = `Bearer ${_token}`;
     axios.defaults.baseURL = 'https://localhost:7178/api/';
 
     return (
         <div className="App">
             <Router>
-                <CssBaseline />
+                <ModalSearch />
+
                 <Routes>
-                    <Route path="/" element={<SidePage />} />
-                    <Route path="/signin" element={<SignIn />} />
+                    {/* <Route path="/" element={<SidePage />} /> */}
+                    <Route path="/" element={<SignIn />} />
                     <Route path="/signup" element={<SignUp />} />
                     <Route path="/forgotpassword" element={<ForgotPasswordPage />} />
                     <Route path="/resetpassword" element={<ResetPasswordPage />} />
-                    <Route path="/home/tags" element={Boolean(token) ? <TagPage /> : <SignIn />} />
+                    <Route path="/OTPresetpassword" element={<OTPResetPasswordPage />} />
+
+                    {/* Route Protected */}
+                    <Route path="/home/tags" element={Boolean(_token) ? <TagPage /> : <SignIn />} />
                     <Route
                         path="/home/cards/:tagname"
-                        element={Boolean(token) ? <CardPage /> : <SignIn />}
+                        element={Boolean(_token) ? <CardPage _cards={cards} /> : <SignIn />}
                     />
                     <Route
                         path="/account"
-                        element={Boolean(token) ? <AccountPage /> : <SignIn />}
+                        element={Boolean(_token) ? <AccountPage /> : <SignIn />}
                     />
                     <Route
                         path="/OTPverifyemail"
-                        element={Boolean(token) ? <OTPVerifyEmailPage /> : <SignIn />}
+                        element={Boolean(_token) ? <OTPVerifyEmailPage /> : <SignIn />}
                     />
-                    <Route path="/OTPresetpassword" element={<OTPResetPasswordPage />} />
+
+                    {/* PRACTICE */}
                     <Route
                         path="/practice"
-                        element={Boolean(token) ? <PracticePage /> : <SignIn />}
+                        element={Boolean(_token) ? <PracticePage /> : <SignIn />}
+                    />
+                    <Route
+                        path="/practice/shuffle"
+                        element={Boolean(_token) ? <ShufflePage cards={cards} /> : <SignIn />}
+                    />
+                    <Route
+                        path="/practice/typing"
+                        element={Boolean(_token) ? <TypingPage cards={cards} /> : <SignIn />}
+                    />
+                    <Route
+                        path="/congratulation"
+                        element={Boolean(_token) ? <Congratulation /> : <SignIn />}
                     />
                 </Routes>
             </Router>

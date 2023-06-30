@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Tooltip } from '@mui/material';
+import { Divider, Tooltip, Typography } from '@mui/material';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemIcon from '@mui/material/ListItemIcon';
 import ListItemText from '@mui/material/ListItemText';
@@ -9,16 +9,70 @@ import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 import PeopleIcon from '@mui/icons-material/People';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import LayersIcon from '@mui/icons-material/Layers';
-import { TurnedIn, Style, AutoAwesome } from '@mui/icons-material';
+import { TurnedIn, Style, AutoAwesome, Add, AccountBox, Search } from '@mui/icons-material';
 
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
+import { setModal } from '../State/ModalReducer';
 
 export default function SideBarListItemsComponent() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
+    const handleCreateTag = () => {
+        dispatch(
+            setModal({
+                modal: {
+                    create: true,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: false,
+                    name: 'Create Tag',
+                },
+            })
+        );
+    };
+
+    const handleSearch = () => {
+        dispatch(
+            setModal({
+                modal: {
+                    create: false,
+                    update: false,
+                    delete: false,
+                    sendOTP: false,
+                    practice: true,
+                    name: '',
+                },
+            })
+        );
+    };
     return (
         <React.Fragment>
+            {/* Account */}
+            <Tooltip title="Account" placement="right">
+                <ListItemButton onClick={() => navigate('/account')}>
+                    <ListItemIcon>
+                        <AccountBox />
+                    </ListItemIcon>
+                    <ListItemText primary="Account" />
+                </ListItemButton>
+            </Tooltip>
+
+            <Divider />
+
+            {/* Search */}
+            <Tooltip title="Search Tag" placement="right">
+                <ListItemButton onClick={handleSearch}>
+                    <ListItemIcon>
+                        <Search />
+                    </ListItemIcon>
+                    <ListItemText primary="Search Tag" />
+                </ListItemButton>
+            </Tooltip>
+            <Divider />
+
             {/* Tag Page */}
             <Tooltip title="Tag" placement="right">
                 <ListItemButton onClick={() => navigate('/home/tags')}>
@@ -29,23 +83,13 @@ export default function SideBarListItemsComponent() {
                 </ListItemButton>
             </Tooltip>
 
-            {/* Card Page */}
-            {/* <Tooltip title="Card" placement="right">
-                <ListItemButton onClick={() => navigate('/home/cards')}>
+            {/* Create Tag */}
+            <Tooltip title="Create Tag" placement="right">
+                <ListItemButton onClick={handleCreateTag}>
                     <ListItemIcon>
-                        <Style />
+                        <Add />
                     </ListItemIcon>
-                    <ListItemText primary="Card" />
-                </ListItemButton>
-            </Tooltip> */}
-
-            {/* Practice Page */}
-            <Tooltip title="Practice" placement="right">
-                <ListItemButton onClick={() => navigate('/practice')}>
-                    <ListItemIcon>
-                        <AutoAwesome />
-                    </ListItemIcon>
-                    <ListItemText primary="Practice" />
+                    <ListItemText primary="Create Tag" />
                 </ListItemButton>
             </Tooltip>
         </React.Fragment>

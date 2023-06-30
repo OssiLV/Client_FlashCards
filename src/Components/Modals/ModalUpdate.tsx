@@ -4,7 +4,7 @@ import Modal from '@mui/material/Modal';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import { useDispatch, useSelector } from 'react-redux';
-import { setModal } from '../../State';
+import { setModal } from '../../State/ModalReducer';
 import axios from 'axios';
 import { Divider, TextField } from '@mui/material';
 import { toast } from 'react-hot-toast';
@@ -29,9 +29,9 @@ interface ITag {
 export default function ModalUpdate({ forceRender }: any) {
     const dispatch = useDispatch();
 
-    const _modal = useSelector((state: any) => state.modal);
-    const tagId = useSelector((state: any) => state.tagId);
-    const cardId = useSelector((state: any) => state.cardId);
+    const _modal = useSelector((state: any) => state.rootModalReducer.modal);
+    const _tagId = useSelector((state: any) => state.rootCurrentValueReducer.tagId);
+    const _cardId = useSelector((state: any) => state.rootCurrentValueReducer.cardId);
 
     const maxlength: number = 12;
     const [value_1, setValue_1] = React.useState('');
@@ -74,7 +74,7 @@ export default function ModalUpdate({ forceRender }: any) {
         if (_modal.name === 'Update Tag') {
             axios
                 .put('Tag/update', {
-                    id: tagId,
+                    id: _tagId,
                     name: value_1,
                     description: value_2,
                 })
@@ -89,7 +89,7 @@ export default function ModalUpdate({ forceRender }: any) {
         if (_modal.name === 'Update Card') {
             axios
                 .put('Card/update', {
-                    id: cardId,
+                    id: _cardId,
                     title: value_1,
                     translate: value_2,
                 })
@@ -123,7 +123,7 @@ export default function ModalUpdate({ forceRender }: any) {
                             setValue_1(event.target.value)
                         }
                         error={errValidate_1}
-                        helperText={errValidate_1 ? 'Value must be < 12 ' : ''}
+                        helperText={errValidate_1 ? 'Value must be less than 12 characters' : ''}
                         required
                         fullWidth
                         label={_modal?.name === 'Update Tag' ? 'name' : 'title'}
@@ -137,7 +137,7 @@ export default function ModalUpdate({ forceRender }: any) {
                             setValue_2(event.target.value)
                         }
                         error={errValidate_2}
-                        helperText={errValidate_2 ? 'Value must be < 12 ' : ''}
+                        helperText={errValidate_2 ? 'Value must be less than 12 characters' : ''}
                         required
                         fullWidth
                         label={_modal?.name === 'Update Tag' ? 'description' : 'translate'}

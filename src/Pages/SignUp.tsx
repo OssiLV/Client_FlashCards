@@ -4,8 +4,6 @@ import {
     Button,
     CssBaseline,
     TextField,
-    FormControlLabel,
-    Checkbox,
     Link,
     Grid,
     Box,
@@ -13,7 +11,7 @@ import {
     Typography,
 } from '@mui/material';
 import { LockClockOutlined } from '@mui/icons-material';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 
@@ -21,15 +19,17 @@ export default function SignUp() {
     const navigate = useNavigate();
     const [errPassword, setErrPassword] = React.useState(true);
     const [errUserName, setErrUserName] = React.useState(false);
+    const [errUserEmail, setErrUserEmail] = React.useState(false);
     const [userName, setUserName] = React.useState('');
     const [password, setPassword] = React.useState('');
     const [confirmPassword, setConfirmPassword] = React.useState('');
+    const [message, setMessage] = React.useState('');
+    const [isOpenModal, setIsOpenModal] = React.useState(false);
 
     const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         const data = new FormData(event.currentTarget);
-        const password = String(data.get('password'));
-        const confirmPassword = data.get('confirmPassword');
+        const email = data.get('email');
 
         if (!errPassword && !errUserName) {
             axios
@@ -39,16 +39,21 @@ export default function SignUp() {
                     password: data.get('password'),
                     emailConfirm: false,
                 })
-                .then(() => navigate('/home/tags'))
+                .then((res) => {
+                    navigate('/');
+                })
                 .catch((error) => {
-                    console.error(`Cannot SignUp ${error}`);
-
-                    setErrUserName(true);
+                    setMessage(error.response.data);
+                    if (error.response.data === 'User Email already exists') {
+                        setErrUserEmail(true);
+                    }
+                    toast.error('Cannot Register');
+                    console.error(`Cannot Register ${error}`);
                 });
         }
 
         if (errPassword || errUserName) {
-            toast.error('Cannot SignUp');
+            toast.error('Cannot Register');
         }
     };
 
@@ -60,9 +65,13 @@ export default function SignUp() {
         }
     }, [confirmPassword]);
 
-    React.useEffect(() => {
+    React.useEffect(() => {}, [userName]);
+
+    const handleCheckUserName = (value: string) => {
+        setUserName(value);
         const maxLength: number = 12;
         const specialCharacters = [
+            '.',
             '!',
             '@',
             '#',
@@ -89,19 +98,20 @@ export default function SignUp() {
         for (const specialCharacter of specialCharacters) {
             if (userName.includes(specialCharacter)) {
                 isSpecialCharacters = true;
+                setErrUserName(true);
             }
         }
 
-        // if (userName.trim() === '') {
-        //     setErrUserName(true);
-        // }
+        if (userName.trim() === '') {
+            setErrUserName(true);
+        }
         if (userName.length > maxLength) {
             setErrUserName(true);
         }
         if (userName.trim() !== '' && userName.length <= maxLength && !isSpecialCharacters) {
             setErrUserName(false);
         }
-    }, [userName]);
+    };
 
     return (
         <Container component="main" maxWidth="xs">
@@ -125,12 +135,12 @@ export default function SignUp() {
                         <Grid item xs={12}>
                             <TextField
                                 onChange={(event: React.ChangeEvent<HTMLInputElement>) =>
-                                    setUserName(event.target.value)
+                                    handleCheckUserName(event.target.value)
                                 }
                                 error={errUserName}
                                 helperText={
                                     errUserName
-                                        ? 'UserName must be < 12 and does not contain specialCharacters and space'
+                                        ? 'UserName must be less than 12 characters and does not contain special Characters and space'
                                         : ''
                                 }
                                 required
@@ -145,6 +155,8 @@ export default function SignUp() {
                             <TextField
                                 required
                                 fullWidth
+                                error={errUserEmail}
+                                helperText={errUserEmail ? 'User Email already exist!!' : ''}
                                 id="email"
                                 label="Email Address"
                                 name="email"
@@ -182,13 +194,20 @@ export default function SignUp() {
                                 id="confirmPassword"
                             />
                         </Grid>
+                        {message !== '' ? (
+                            <Box sx={{ mt: '1rem', ml: 2, color: '#d32f2f' }}>
+                                <Typography sx={{}}>{message}</Typography>
+                            </Box>
+                        ) : (
+                            ''
+                        )}
                     </Grid>
                     <Button type="submit" fullWidth variant="contained" sx={{ mt: 3, mb: 2 }}>
                         Sign Up
                     </Button>
                     <Grid container justifyContent="flex-end">
                         <Grid item>
-                            <Link href="/signin" variant="body2">
+                            <Link href="/" variant="body2">
                                 Already have an account? Sign in
                             </Link>
                         </Grid>

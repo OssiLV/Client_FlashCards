@@ -1,8 +1,8 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { CssBaseline } from '@mui/material';
-import cardReducer from './State';
-import { configureStore } from '@reduxjs/toolkit';
+import { UserReducer, ModalReducer, CurrentValueReducer, AuthReducer } from './State';
+import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import { Provider } from 'react-redux';
 import {
     persistStore,
@@ -20,8 +20,21 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import ToasterContext from './Components/Context/ToasterContext';
 import App from './App';
 
-const persistConfig = { key: 'root', storage, version: 1 };
-const persistedReducer = persistReducer(persistConfig, cardReducer);
+const rootPersistConfig = {
+    key: 'FlashCards',
+    storage: storage,
+    version: 1,
+    whitelist: ['rootAuthReducer', 'rootUserReducer', 'rootCurrentValueReducer'],
+};
+
+const rootReducer = combineReducers({
+    rootAuthReducer: AuthReducer,
+    rootUserReducer: UserReducer,
+    rootModalReducer: ModalReducer,
+    rootCurrentValueReducer: CurrentValueReducer,
+});
+
+const persistedReducer = persistReducer(rootPersistConfig, rootReducer);
 const store = configureStore({
     reducer: persistedReducer,
     middleware: (getDefaultMiddleware) =>

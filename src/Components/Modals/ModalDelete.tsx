@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 import axios, { AxiosResponse } from 'axios';
 import { useDispatch, useSelector } from 'react-redux';
-import { setModal } from '../../State';
+import { setModal } from '../../State/ModalReducer';
 import { Divider } from '@mui/material';
 import { toast } from 'react-hot-toast';
 const style = {
@@ -28,10 +28,10 @@ interface ITag {
 
 export default function ModalDelete({ forceRender }: any) {
     const dispatch = useDispatch();
-    const _user = useSelector((state: any) => state.user);
-    const _modal = useSelector((state: any) => state.modal);
-    const tagId = useSelector((state: any) => state.tagId);
-    const cardId = useSelector((state: any) => state.cardId);
+    const _user = useSelector((state: any) => state.rootUserReducer.user);
+    const _modal = useSelector((state: any) => state.rootModalReducer.modal);
+    const _tagId = useSelector((state: any) => state.rootCurrentValueReducer.tagId);
+    const _cardId = useSelector((state: any) => state.rootCurrentValueReducer.cardId);
     const [_totalPage, _setTotalPage] = React.useState<number>(1);
 
     const handleClose = () =>
@@ -60,7 +60,7 @@ export default function ModalDelete({ forceRender }: any) {
     const handleDelete = () => {
         if (_modal.name === 'Delete Tag') {
             axios
-                .delete(`Tag/delete/${tagId}`)
+                .delete(`Tag/delete/${_tagId}`)
                 .then(() => {
                     toast.error('Your Tag is deleted');
                     handleClose();
@@ -71,7 +71,7 @@ export default function ModalDelete({ forceRender }: any) {
 
         if (_modal.name === 'Delete Card') {
             axios
-                .delete(`Card/delete/${cardId}`)
+                .delete(`Card/delete/${_cardId}`)
                 .then(() => {
                     toast.error('Your Card is deleted');
                     handleClose();
@@ -93,6 +93,9 @@ export default function ModalDelete({ forceRender }: any) {
                 <Box sx={style}>
                     <Typography id="keep-mounted-modal-title" variant="h6" component="h2">
                         {_modal?.name}
+                    </Typography>
+                    <Typography id="keep-mounted-modal-title" variant="body1" component="p">
+                        Are you sure to DELETE this tag ?
                     </Typography>
 
                     <Divider sx={{ my: 1 }} />

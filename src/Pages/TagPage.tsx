@@ -33,7 +33,7 @@ export default function TagPage() {
 
     React.useEffect(() => {
         document.addEventListener('keydown', (event) => {
-            if (event.ctrlKey && event.key === 'b') {
+            if (event.key === '/') {
                 dispatch(
                     setModal({
                         modal: {
@@ -128,7 +128,7 @@ export default function TagPage() {
             <ModalCreate forceRender={forceTagRender} />
             <ModalUpdate forceRender={forceTagRender} />
             <ModalDelete forceRender={forceTagRender} />
-
+            {/* <ModalSearch _tags={tags} /> */}
             <AppBarComponent />
 
             <Box

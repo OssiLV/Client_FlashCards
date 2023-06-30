@@ -15,7 +15,7 @@ interface ITag {
     description: string;
 }
 
-function ModalSearch() {
+const ModalSearch = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -40,6 +40,7 @@ function ModalSearch() {
             })
         );
     };
+
     React.useEffect(() => {
         axios
             .get(`Tag/alltags/${_user?.id}`)
@@ -56,8 +57,6 @@ function ModalSearch() {
         handleCloseModal();
     };
 
-    // SetFriendAfterFilter(data.GetFriends.filter(x=>`${x.firstName.toLowerCase()} ${x.lastName.toLowerCase()}`.includes(keyword.toLowerCase())))
-
     const handleSearch = (value: string) => {
         if (value !== '') {
             const filteredTag = tags.filter((x) => {
@@ -71,23 +70,6 @@ function ModalSearch() {
             setFilteredResults(tags);
         }
     };
-
-    // console.log(testSearch());
-
-    //Handle Search Tags
-    // React.useLayoutEffect(() => {
-    //     if (searchTag !== '') {
-    //         const filteredTag = tags.filter((x) => {
-    //             return `${x.name.toLowerCase()} ${x.description.toLowerCase()}`.includes(
-    //                 searchTag.toLowerCase()
-    //             );
-    //         });
-
-    //         setFilteredResults(filteredTag);
-    //     } else {
-    //         setFilteredResults(tags);
-    //     }
-    // }, [searchTag]);
 
     return (
         <div>
@@ -287,6 +269,6 @@ function ModalSearch() {
             {/*  */}
         </div>
     );
-}
+};
 
 export default ModalSearch;

@@ -69,6 +69,9 @@ export default function SideBarListItemsComponent() {
                         <Search />
                     </ListItemIcon>
                     <ListItemText primary="Search Tag" />
+                    <Typography sx={{ opacity: 0.6 }} variant="caption">
+                        Press "/" to search
+                    </Typography>
                 </ListItemButton>
             </Tooltip>
             <Divider />
